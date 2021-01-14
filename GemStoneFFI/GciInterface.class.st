@@ -1,3 +1,6 @@
+"
+aGciInterface
+"
 Class {
 	#name : #GciInterface,
 	#superclass : #Object,
