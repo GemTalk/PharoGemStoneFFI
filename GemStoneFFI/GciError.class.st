@@ -1,3 +1,14 @@
+"
+The type of Exception raised by the GCI in Pharo.
+ 
+
+Instance Variables
+	fatal:			<Boolean> - true if the session was termianted, otherwise false.
+	message:		<ByteString> - error message from GemStone.
+	number:		<SmallInteger> - GemStone error number.
+	reason:		<ByteString> - additional information about the error. Maybe empty or nil.
+
+"
 Class {
 	#name : #GciError,
 	#superclass : #Error,

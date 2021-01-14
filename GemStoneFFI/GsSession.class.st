@@ -1,3 +1,12 @@
+"
+An object representing a GemStone session.
+
+Instance Variables
+	gciInterface:			<GciLegacyInterface or GciThreadSafeInterface >
+	sessionParameters:		<GsSessionParameters >
+
+
+"
 Class {
 	#name : #GsSession,
 	#superclass : #Object,

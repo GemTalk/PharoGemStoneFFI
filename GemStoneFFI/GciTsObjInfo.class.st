@@ -1,3 +1,7 @@
+"
+A representation of the GciTsObjInfo C structure, which is used by the thread-safe GCI to return certain attributes of an OopType (object).
+Allocated on the C heap and must be freed.
+"
 Class {
 	#name : #GciTsObjInfo,
 	#superclass : #FFIStructure,

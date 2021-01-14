@@ -1,3 +1,6 @@
+"
+A pool variable used to represent various C types used by the GCI.
+"
 Class {
 	#name : #GciTypes,
 	#superclass : #Object,

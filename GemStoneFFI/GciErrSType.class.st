@@ -1,3 +1,7 @@
+"
+A representation the gci type GciErrSType C structure, used to return GemStone error information to Pharo.
+Allocated on the C heap and must be freed.
+"
 Class {
 	#name : #GciErrSType,
 	#superclass : #FFIStructure,

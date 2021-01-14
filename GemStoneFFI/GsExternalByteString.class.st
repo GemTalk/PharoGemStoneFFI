@@ -1,3 +1,6 @@
+"
+A class used to represent a C null-terminated ASCII string. instances are allocated on the C heap and must be freed.
+"
 Class {
 	#name : #GsExternalByteString,
 	#superclass : #FFIExternalArray,

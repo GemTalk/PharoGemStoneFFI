@@ -1,11 +1,6 @@
 "
 An object represeting the parameters needed to log into GemStone.
 
-Public API and Key Messages
-
- 
-Internal Representation and Key Implementation Points.
-
 Instance Variables:
 	gemResource:			<GsNetworkResource>
 	stoneResource:		<GsNetworkResource>

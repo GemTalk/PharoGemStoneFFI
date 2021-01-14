@@ -1,3 +1,8 @@
+"
+A simple OrderedCollection used to track memroy alllocated on the C-heap by the GemStoneFFI.
+
+The #freeAll message frees all memory in the receiver and empties the collection.
+"
 Class {
 	#name : #GsMemoryTracker,
 	#superclass : #OrderedCollection,

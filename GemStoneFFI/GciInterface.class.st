@@ -1,5 +1,5 @@
 "
-aGciInterface
+Abstract superclass for Gci interfaces. Contains behavior used by both the thread-safe and non-thread-safe GCI interfaces.
 "
 Class {
 	#name : #GciInterface,

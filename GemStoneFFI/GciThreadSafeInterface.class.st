@@ -1,3 +1,9 @@
+"
+The class used to call the thread-safe GCI via the Pharo FFI.
+
+Instance Variables:
+-session (ExternalData) - a reference to the GciSession object in C heap memory. All Gci thread safe calls take the session as an argument.
+"
 Class {
 	#name : #GciThreadSafeInterface,
 	#superclass : #GciInterface,
