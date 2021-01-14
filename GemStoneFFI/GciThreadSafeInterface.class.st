@@ -1,0 +1,289 @@
+Class {
+	#name : #GciThreadSafeInterface,
+	#superclass : #GciInterface,
+	#instVars : [
+		'session'
+	],
+	#category : #GemStoneFFI
+}
+
+{ #category : #constants }
+GciThreadSafeInterface class >> fileNameStem [
+
+"Gci Lbraries are named this way:
+  libgcirpc-ver1.ver2.ver3-mmodel.ext"
+^ 'libgcits-'
+]
+
+{ #category : #testing }
+GciThreadSafeInterface class >> isThreadSafe [
+	^ true
+]
+
+{ #category : #assertions }
+GciThreadSafeInterface >> assertLoggedIn [
+
+self isLoggedIn ifFalse:[ self error: 'Session is not yet logged in!']
+]
+
+{ #category : #assertions }
+GciThreadSafeInterface >> assertNotLoggedIn [
+
+self isLoggedIn ifTrue:[ self error: 'Session is already logged in']
+]
+
+{ #category : #'remote execution (nonblocking)' }
+GciThreadSafeInterface >> blockAndFetchNbResult [
+
+"Blocks until the result of a previous non-blocking executeString method is ready.
+Raises an exception if an error occurs.
+Otherwise returns the result object execution which must be true, false, nil or a SmallInteger.
+To check the nonblocking call status without blocking use the method: getNbCallStatusWithMaxDelay: 0"
+|tracker  result  gsError|
+self assertLoggedIn .
+tracker := GsMemoryTracker new.
+gsError := tracker add: GciErrSType externalNew .
+result := self gciTsNbResult: session gsError: gsError.
+result == self class oopIllegal 
+	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
+^self class asLocalObject: result
+]
+
+{ #category : #'remote execution' }
+GciThreadSafeInterface >> executeStringAndFetchResultString: sourceString [ 
+
+"Compiles and executes sourceString on GemStone. Assumes the result of the executing is a String object.
+Returns a ByteString on success or raises an exception if an error occurs."
+^ self executeStringAndFetchResultString: sourceString maxResultSize: 1024
+
+]
+
+{ #category : #'remote execution' }
+GciThreadSafeInterface >> executeStringAndFetchResultString: sourceString maxResultSize: anInt [
+
+|tracker srcCstring result resultBuffer gsError|
+
+self assertLoggedIn .
+tracker := GsMemoryTracker new.
+srcCstring := self convertStringToExternalArgOrNull: sourceString  memoryTracker: tracker.
+resultBuffer := tracker add: (GsExternalByteString new: anInt).
+gsError := tracker add: GciErrSType externalNew .
+ 
+result := self gciTsExecuteFetchBytes: session 
+ 									sourceString: srcCstring getHandle 
+									 sourceStringSize: srcCstring sizeNoNull  
+									 sourceOop: self class OOP_CLASS_STRING 
+									 contextObject: self class oopNil
+									 symbolList: self class oopNil
+									 resultBuffer: resultBuffer getHandle
+									 resultBufferSize: resultBuffer size 
+									gsError: gsError .
+result == -1 "Call failed, return an exception"
+	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
+result := resultBuffer asByteString .
+tracker freeAll.
+^ result
+									
+
+]
+
+{ #category : #'remote execution' }
+GciThreadSafeInterface >> executeStringNb: sourceString [
+
+"Starts remote execution of the string sourceString.
+Returns true if the execution was started and raises and exception on error."
+|tracker srcCstring result gsError|
+
+self assertLoggedIn .
+tracker := GsMemoryTracker new.
+srcCstring := self convertStringToExternalArgOrNull: sourceString  memoryTracker: tracker.
+gsError := tracker add: GciErrSType externalNew .
+
+result := self gciTsNbExecute: session
+		 sourceString: srcCstring getHandle 
+		 sourceOop: self class OOP_CLASS_STRING  
+		 contextObject: self class oopNil
+		 symbolList: self class oopNil
+		 flags: 0
+		 envId: 0
+		 gsError: gsError.
+result ~~ 1 ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
+tracker freeAll.
+^ true
+]
+
+{ #category : #'ffi calls' }
+GciThreadSafeInterface >> gciTsExecuteFetchBytes: sess sourceString: sourceString sourceStringSize: sourceStringSize sourceOop: sourceOop contextObject: contextObject symbolList: symbolList resultBuffer: resultBuffer resultBufferSize: resultBufferSize gsError: gsError [
+
+^self ffiCall: #( int64 GciTsExecuteFetchBytes(
+											void * sess, 
+											const char* sourceString, 
+											int64 sourceStringSize, 
+											OopType sourceOop, 
+											OopType contextObject, 
+											OopType symbolList,  
+											char *resultBuffer, 
+											int64 resultBufferSize,
+											GciErrSType *gsError)) library: self gsLibraryPath 
+]
+
+{ #category : #'ffi calls' }
+GciThreadSafeInterface >> gciTsLoginToStone: stnNrs hostUserId: hostUid hostPassword: hostPw hostPwIsEncrypted: hostPwEnc gemNrs: gemNrs gsUserId: gsUid gsPassword: gsPw loginFlags: lFlags haltOnErrorNum: haltNum executedSessInit: aBoolPtr err: gsErrSType [
+"Low level FFI call to login using the Gci thread-safe library."
+			
+^ self ffiCall: #( void * GciTsLogin(const char *stnNrs, 
+												const char *hostUid, 
+												const char *hostPw, 
+												int32 hostPwEnc, 
+												const char *gemNrs, 
+												const char *gsUid, 
+												const char *gsPw, 
+												uint32 lFlags, 
+												int32 haltNum, 
+												int32  *aBoolPtr, 
+												GciErrSType *gsErrSType) ) 
+			library: self gsLibraryPath 
+]
+
+{ #category : #'ffi calls' }
+GciThreadSafeInterface >> gciTsLogout: sess gsError: gsError [
+"Low level FFI call to logout using the Gci thread-safe library."
+			
+^ self ffiCall: #( BoolType GciTsLogout(void *sess, GciErrSType *gsError) ) library: self gsLibraryPath 
+]
+
+{ #category : #'ffi calls' }
+GciThreadSafeInterface >> gciTsNbExecute: sess sourceString: sourceString sourceOop: sourceOop contextObject: contextObject symbolList: symbolList flags: flags envId: envId gsError: gsError [
+
+^self ffiCall: #( BoolType GciTsNbExecute(
+											void * sess, 
+											const char* sourceString, 
+											OopType sourceOop, 
+											OopType contextObject, 
+											OopType symbolList,  
+											int flags,
+											uint16 envId,
+											GciErrSType *gsError)) library: self gsLibraryPath 
+]
+
+{ #category : #'ffi calls' }
+GciThreadSafeInterface >> gciTsNbPoll: sess timeoutMs: timeoutMs gsError: gsError [
+
+^self ffiCall: #( int GciTsNbPoll(
+											void * sess, 
+											int timeoutMs,
+											GciErrSType *gsError)) library: self gsLibraryPath 
+]
+
+{ #category : #'ffi calls' }
+GciThreadSafeInterface >> gciTsNbResult: sess gsError: gsError [
+
+^self ffiCall: #( OopType GciTsNbResult(
+											void * sess, 
+											GciErrSType *gsError)) library: self gsLibraryPath 
+]
+
+{ #category : #'remote execution (nonblocking)' }
+GciThreadSafeInterface >> getNbCallStatusWithMaxDelay: delayMs [
+
+"Check for completion of a nonblocking call. Block for delayMs to wait for the call to complete. If delayMs is -1, block forever until the call completes."
+|tracker  result  gsError|
+tracker := GsMemoryTracker new.
+gsError := tracker add: GciErrSType externalNew .
+result := self gciTsNbPoll: session timeoutMs: delayMs gsError: gsError.
+result == -1 
+	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
+tracker freeAll.
+result == 1 ifTrue:[ ^ true ].
+result == 0 ifTrue:[ ^ false ].
+^ self error: ('Unexpected result from gciTsNbPoll call: ', result asString)
+]
+
+{ #category : #testing }
+GciThreadSafeInterface >> isLoggedIn [
+^ session ~~ nil
+]
+
+{ #category : #Login }
+GciThreadSafeInterface >> loginWithHostUserId: hostId hostPassword: hostPw gsUserId: gsUserId gsPassword: gsPw sessionParameters: parms [
+
+|exStnNrs exHostId exHostPw exHostPwEnc exGemNrs exGsUid exGsPw exLoginFlags exHaltOnErrNum exBoolPtr gsError result tracker|
+"This is ugly smalltalk code, but then again, calling an 11 arg fuction using the FFI is ugly business!"
+self assertNotLoggedIn .
+
+"Keep track of all malloced memory with this object."
+tracker := GsMemoryTracker new.
+
+"Convert all login string args to external addresses or NULL if empty. tracker remembers the object if it's not null"
+exStnNrs := self convertStringToExternalArgOrNull: parms stoneNrs memoryTracker: tracker.
+exHostId := self convertStringToExternalArgOrNull: hostId memoryTracker: tracker.
+exHostPw := self convertStringToExternalArgOrNull: hostPw memoryTracker: tracker.
+exHostPwEnc := 0.
+exGemNrs := self convertStringToExternalArgOrNull: parms gemNrs memoryTracker: tracker.
+exGsUid := self convertStringToExternalArgOrNull: gsUserId memoryTracker: tracker.
+exGsPw := self convertStringToExternalArgOrNull: gsPw memoryTracker: tracker.
+exLoginFlags := 0.
+exHaltOnErrNum := 0.
+exBoolPtr := FFIInt32 newBuffer .
+gsError := tracker add: GciErrSType externalNew .
+"result is a GsSession (void *)"
+result := self gciTsLoginToStone: exStnNrs getHandle
+		hostUserId: exHostId  getHandle 
+		hostPassword: exHostPw  getHandle
+		hostPwIsEncrypted: exHostPwEnc  
+		gemNrs: exGemNrs  getHandle
+		gsUserId: exGsUid getHandle
+		 gsPassword: exGsPw getHandle
+		 loginFlags: exLoginFlags 
+		 haltOnErrorNum: exHaltOnErrNum 
+		 executedSessInit: exBoolPtr 
+		 err: gsError .
+result isNull ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
+session := result.
+tracker freeAll.
+^ true
+
+
+]
+
+{ #category : #Login }
+GciThreadSafeInterface >> logout [
+
+"Logout the session. Raise an error if the session is not logged in or GsTsLogout returns an error. Return true on success."
+^self logoutNoError: false
+
+]
+
+{ #category : #Login }
+GciThreadSafeInterface >> logoutNoError [
+"Same as logout except that errors are ignored. Returns true."
+^self logoutNoError: true
+
+]
+
+{ #category : #Login }
+GciThreadSafeInterface >> logoutNoError: noError [
+
+"Logout the session. If noError is true, then errors are ignored and no exceptions are raised.
+If noError is false, raise an exception if the session is already logged out or if the FFI call returns
+anything but 1."
+| result tracker gsError |
+self isLoggedIn ifFalse:[
+	^  noError ifTrue:[ true ] ifFalse:[ self error: 'session is not logged in' ].
+].
+
+tracker := GsMemoryTracker new.
+gsError := tracker add: GciErrSType externalNew .
+result := self gciTsLogout: session gsError: gsError .
+session := nil.
+((result == 1) or:[ noError]) ifTrue:[
+	tracker freeAll.
+	^true
+].
+"Got an error logging out"
+
+result := GciError newForError:  gsError. "Build a coherent exception before freeing gsError"
+tracker freeAll. "free all memory"
+^result signal: result message
+
+]
