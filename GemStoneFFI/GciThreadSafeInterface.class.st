@@ -189,6 +189,32 @@ GciThreadSafeInterface >> gciTsNbResult: sess gsError: gsError [
 											GciErrSType *gsError)) library: self gsLibraryPath 
 ]
 
+{ #category : #'ffi calls' }
+GciThreadSafeInterface >> gciTsVersion: buffer bufferSize: bufSize [
+"Low level FFI call to logout using the Gci thread-safe library."
+			
+^ self ffiCall: #( uint32 GciTsVersion(char *buffer, size_t bufSize) ) library: self gsLibraryPath 
+]
+
+{ #category : #'remote execution' }
+GciThreadSafeInterface >> gciVersionString [
+
+|tracker result resultBuffer bufSize|
+
+bufSize := 80.
+tracker := GsMemoryTracker new.
+resultBuffer := tracker add: (GsExternalByteString new: bufSize).
+ 
+"Result is the GciProduct type, which is always 3 (not interesting)."
+self gciTsVersion: resultBuffer getHandle bufferSize: bufSize.
+"Save result string so we can free the buffer on the C heap"
+result := resultBuffer asByteString .
+tracker freeAll.
+^ result
+									
+
+]
+
 { #category : #'remote execution (nonblocking)' }
 GciThreadSafeInterface >> getNbCallStatusWithMaxDelay: delayMs [
 

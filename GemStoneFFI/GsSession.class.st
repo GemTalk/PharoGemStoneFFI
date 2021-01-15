@@ -56,6 +56,18 @@ GsSession >> gciInterface: anObject [
 	gciInterface := anObject
 ]
 
+{ #category : #'remote execution' }
+GsSession >> gciVersionString [
+
+^self gciInterface gciVersionString
+]
+
+{ #category : #'remote execution' }
+GsSession >> gsLibraryPath [
+
+^self gciInterface gsLibraryPath
+]
+
 { #category : #login }
 GsSession >> loginWithGsUser: uid password: pw [ 
 
