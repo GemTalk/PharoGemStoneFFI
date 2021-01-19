@@ -1,5 +1,5 @@
 "
-An object representing a GemStone session.
+An object representing a GemStone session. Most messages are passed to my gciInterface via doesNotUnderstand: .
 
 Instance Variables
 	gciInterface:			<GciLegacyInterface or GciThreadSafeInterface >
@@ -16,6 +16,39 @@ Class {
 	],
 	#category : #GemStoneFFI
 }
+
+{ #category : #examples }
+GsSession class >> example1 [
+"Get the GCI version string from the 3.7.0 GCI library and the path to the gci library file.
+Be sure the path to the GCI client libraries is set. Use this code to set it if necessary:
+
+GciInterface libraryDirectory:  'C:\cygwin64\home\normg\clientlibs'
+"
+
+|sess|
+sess := GsSession newForGsVersion: '3.7.0' threadSafe: true stone: 'norm' host: 'moop' netldi: '10117'.
+^Array with: sess gciVersionString  with: sess gsLibraryPath 
+
+]
+
+{ #category : #examples }
+GsSession class >> example2 [
+"Log in to GemStone and get the file size report via blocking RPC call.
+Be sure the path to the GCI client libraries is set. Use this code to set it if necessary:
+
+GciInterface libraryDirectory:  'C:\cygwin64\home\normg\clientlibs'
+
+GsSession example2
+"
+
+|sess result|
+sess := GsSession newForGsVersion: '3.7.0' threadSafe: true stone: 'norm' host: 'moop' netldi: '10117'.
+sess loginWithGsUser: 'DataCurator' password: 'swordfish'.
+result := sess executeStringAndFetchResultString: 'SystemRepository fileSizeReport'.
+sess logout.
+^result
+
+]
 
 { #category : #'instance creation' }
 GsSession class >> newForGsVersion: aGsVersion threadSafe: aBoolean [
@@ -40,10 +73,11 @@ parms := GsSessionParameters newForStoneName: stoneName host: hostName netldi: n
 
 ]
 
-{ #category : #'remote execution' }
-GsSession >> executeStringAndFetchResultString: sourceString [ 
-
-^self gciInterface executeStringAndFetchResultString: sourceString 
+{ #category : #'reflective operations' }
+GsSession >> doesNotUnderstand: aMessage [
+	^ self gciInterface
+		perform: aMessage selector 
+		withArguments: aMessage arguments
 ]
 
 { #category : #accessing }
@@ -56,28 +90,10 @@ GsSession >> gciInterface: anObject [
 	gciInterface := anObject
 ]
 
-{ #category : #'remote execution' }
-GsSession >> gciVersionString [
-
-^self gciInterface gciVersionString
-]
-
-{ #category : #'remote execution' }
-GsSession >> gsLibraryPath [
-
-^self gciInterface gsLibraryPath
-]
-
 { #category : #login }
 GsSession >> loginWithGsUser: uid password: pw [ 
 
 ^self gciInterface loginWithHostUserId: nil hostPassword: nil gsUserId: uid gsPassword: pw sessionParameters: self sessionParameters 
-]
-
-{ #category : #login }
-GsSession >> logout [
-
-^self gciInterface logout
 ]
 
 { #category : #accessing }

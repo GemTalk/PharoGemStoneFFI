@@ -1,5 +1,5 @@
 "
-Abstract superclass for Gci interfaces. Contains behavior used by both the thread-safe and non-thread-safe GCI interfaces.
+Abstract superclass for Gci interfaces. Contains behavior used by both the thread-safe and non-thread-safe subclasses.
 "
 Class {
 	#name : #GciInterface,
@@ -212,8 +212,11 @@ GciInterface >> gsLibraryPath [
 ]
 
 { #category : #accessing }
-GciInterface >> gsLibraryPath: anObject [
-	gsLibraryPath := anObject
+GciInterface >> gsLibraryPath: aByteString [
+"aByteString is expected to be the full path to the gci library and must exist."
+	(File isFile: aByteString)
+		ifFalse:[^ FileDoesNotExistException signalWithFile: (File named: aByteString) writeMode: false] .
+	gsLibraryPath := aByteString
 ]
 
 { #category : #accessing }
