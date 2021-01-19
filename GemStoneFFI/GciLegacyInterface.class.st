@@ -1,5 +1,6 @@
 "
 The class used to call the legacy non-thread-safe GCI via the Pharo FFI.
+Not yet implemented, contact Norm Green if you need it to work.
 "
 Class {
 	#name : #GciLegacyInterface,

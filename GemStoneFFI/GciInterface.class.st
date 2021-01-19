@@ -24,6 +24,12 @@ GciInterface class >> OOP_CLASS_STRING [
 ]
 
 { #category : #constants }
+GciInterface class >> OOP_CLASS_SYMBOL [
+
+^ 110849
+]
+
+{ #category : #constants }
 GciInterface class >> OOP_NUM_TAG_BITS [
 	^3
 ]
@@ -45,7 +51,7 @@ anOopType == self oopTrue ifTrue:[ ^ true ].
 anOopType == self oopFalse ifTrue:[ ^ false ].
 anOopType == self oopNil ifTrue:[ ^ nil ].
 (self oopIsSmallInt: anOopType) ifTrue:[ ^ self oopToSmallInt: anOopType ].
-^self error: 'Exceeded limitations of primitive asLocalObject method'
+^nil "Easy cases exhausted. Caller needs to call GciTsFetchObjInfo to find out what is it."
 ]
 
 { #category : #'library path' }

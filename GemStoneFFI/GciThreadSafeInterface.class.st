@@ -45,14 +45,17 @@ GciThreadSafeInterface >> blockAndFetchNbResult [
 Raises an exception if an error occurs.
 Otherwise returns the result object execution which must be true, false, nil or a SmallInteger.
 To check the nonblocking call status without blocking use the method: getNbCallStatusWithMaxDelay: 0"
-|tracker  result  gsError|
+|tracker  result  gsError localResult |
 self assertLoggedIn .
 tracker := GsMemoryTracker new.
 gsError := tracker add: GciErrSType externalNew .
 result := self gciTsNbResult: session gsError: gsError.
 result == self class oopIllegal 
 	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
-^self class asLocalObject: result
+tracker freeAll. "No error, so done with this."
+^(localResult := self class asLocalObject: result)
+	ifNil:[self fetchResultString: result maxResultSize: 1024] "Hope to heavens dthat it's a string!"
+	ifNotNil:[ localResult ]. "Boolean, nil, Integer or symbol all take this path"
 ]
 
 { #category : #'remote execution' }
@@ -93,7 +96,7 @@ tracker freeAll.
 
 ]
 
-{ #category : #'remote execution' }
+{ #category : #'remote execution (nonblocking)' }
 GciThreadSafeInterface >> executeStringNb: sourceString [
 
 "Starts remote execution of the string sourceString.
@@ -118,6 +121,73 @@ tracker freeAll.
 ^ true
 ]
 
+{ #category : #'remote execution' }
+GciThreadSafeInterface >> fetchResultString: oop maxResultSize: anInt [
+
+|tracker objInfo result resultBuffer gsError|
+
+self assertLoggedIn .
+tracker := GsMemoryTracker new.
+
+resultBuffer := tracker add: (GsExternalByteString new: anInt).
+gsError := tracker add: GciErrSType externalNew .
+objInfo := tracker add: GciTsObjInfo externalNew .
+result := self gciTsFetchObjInfo: session 
+ 									 object: oop
+									 addToExportSet: 0
+									 resultInfo: objInfo
+									 resultBuffer: resultBuffer getHandle
+									 resultBufferSize: resultBuffer size 
+									gsError: gsError .
+result == -1 "Call failed, return an exception"
+	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
+objInfo objClass == self class OOP_CLASS_STRING
+  ifFalse:[ tracker freeAll. 
+				^ Error signal: ('Expected GemStone object to have class OOP_CLASS_STRING but it has class ', objInfo objClass asString)
+				].
+result := resultBuffer asByteString .
+tracker freeAll.
+^ result
+									
+
+]
+
+{ #category : #'remote execution' }
+GciThreadSafeInterface >> fetchResultStringOrSymbol: oop maxResultSize: anInt [
+
+|tracker objInfo result resultBuffer gsError isSymbol classOop|
+
+self assertLoggedIn .
+tracker := GsMemoryTracker new.
+
+resultBuffer := tracker add: (GsExternalByteString new: anInt).
+gsError := tracker add: GciErrSType externalNew .
+objInfo := tracker add: GciTsObjInfo externalNew .
+result := self gciTsFetchObjInfo: session 
+ 									 object: oop
+									 addToExportSet: 0
+									 resultInfo: objInfo
+									 resultBuffer: resultBuffer getHandle
+									 resultBufferSize: resultBuffer size 
+									gsError: gsError .
+result == -1 "Call failed, return an exception"
+	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
+classOop := objInfo objClass .
+isSymbol := classOop == self class OOP_CLASS_SYMBOL .
+(isSymbol or:[classOop == self class OOP_CLASS_STRING])
+  ifFalse:[  | msg |
+				msg := 'Expected GemStone object to have class OOP_CLASS_STRING but it has class ', classOop asString .
+				tracker freeAll. 
+				^ Error signal: msg
+				].
+result := resultBuffer asByteString .
+isSymbol ifTrue:[ result := result asSymbol ].
+tracker freeAll.
+^ result
+									
+
+]
+
 { #category : #'ffi calls' }
 GciThreadSafeInterface >> gciTsExecuteFetchBytes: sess sourceString: sourceString sourceStringSize: sourceStringSize sourceOop: sourceOop contextObject: contextObject symbolList: symbolList resultBuffer: resultBuffer resultBufferSize: resultBufferSize gsError: gsError [
 
@@ -130,6 +200,19 @@ GciThreadSafeInterface >> gciTsExecuteFetchBytes: sess sourceString: sourceStrin
 											OopType symbolList,  
 											char *resultBuffer, 
 											int64 resultBufferSize,
+											GciErrSType *gsError)) library: self gsLibraryPath 
+]
+
+{ #category : #'ffi calls' }
+GciThreadSafeInterface >> gciTsFetchObjInfo: sess object: objId addToExportSet: aBoolean resultInfo: aGciTsObjInfo resultBuffer: resultBuffer resultBufferSize: resultBufferSize gsError: gsError [ 
+
+^self ffiCall: #( int64 GciTsFetchObjInfo(
+											void *sess, 
+											OopType objId,
+											BoolType aBoolean, 
+											GciTsObjInfo *aGciTsObjInfo,
+											char * resultBuffer, 
+											size_t resultBufferSize,  
 											GciErrSType *gsError)) library: self gsLibraryPath 
 ]
 
