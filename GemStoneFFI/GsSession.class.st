@@ -50,6 +50,26 @@ sess logout.
 
 ]
 
+{ #category : #'examples (non-blocking)' }
+GsSession class >> example3 [
+"Log in to GemStone and get the file size report via nonblocking RPC call.
+Be sure the path to the GCI client libraries is set. Use this code to set it if necessary:
+
+GciInterface libraryDirectory:  'C:\cygwin64\home\normg\clientlibs'
+
+GsSession example3
+"
+| sess result timeMicro |
+sess := GsSession newForGsVersion: '3.7.0' threadSafe: true stone: 'norm' host: 'moop' netldi: '10117'.
+sess loginWithGsUser: 'DataCurator' password: 'swordfish'.
+sess executeStringNb: 'SystemRepository fileSizeReport'. "Start the NB command"
+timeMicro := Time microsecondsToRun:[ 
+				result := sess blockAndFetchNbResult  
+				]. "Block for result and measure time spent waiting in microseconds"
+sess logout.
+^Array with: result with: timeMicro
+]
+
 { #category : #'instance creation' }
 GsSession class >> newForGsVersion: aGsVersion threadSafe: aBoolean [
 
