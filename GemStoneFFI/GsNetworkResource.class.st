@@ -130,5 +130,5 @@ GsNetworkResource >> netldi [
 
 { #category : #accessing }
 GsNetworkResource >> netldi: anObject [
-	netldi := anObject
+	netldi := anObject asString
 ]
