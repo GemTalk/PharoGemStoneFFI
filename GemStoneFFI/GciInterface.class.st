@@ -191,7 +191,9 @@ GciInterface class >> oopTrue [
 
 { #category : #convenience }
 GciInterface class >> separator [ 
-	^ FileSystem disk separator
+
+^ Smalltalk os environment platform isWindows ifTrue:[  $\ ] ifFalse:[ $/ ]
+
 ]
 
 { #category : #convenience }
