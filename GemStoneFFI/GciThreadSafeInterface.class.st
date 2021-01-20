@@ -271,7 +271,8 @@ tracker freeAll.
 { #category : #'remote execution (nonblocking)' }
 GciThreadSafeInterface >> getNbCallStatusWithMaxDelay: delayMs [
 
-"Check for completion of a nonblocking call. Block for delayMs to wait for the call to complete. If delayMs is -1, block forever until the call completes."
+"Check for completion of a nonblocking call. Block for delayMs to wait for the call to complete. If delayMs is -1, block forever until the call completes. Answer true if the nonblocking call completed or false if it has not. Otherwise raise an exception inindicating the session has been terminated."
+
 |tracker  result  gsError|
 tracker := GsMemoryTracker new.
 gsError := tracker add: GciErrSType externalNew .
@@ -281,6 +282,7 @@ result == -1
 tracker freeAll.
 result == 1 ifTrue:[ ^ true ].
 result == 0 ifTrue:[ ^ false ].
+"Should not be here!"
 ^ self error: ('Unexpected result from gciTsNbPoll call: ', result asString)
 ]
 
