@@ -47,10 +47,14 @@ GciInterface class >> OOP_TAG_SPECIAL_MASK [
 { #category : #converting }
 GciInterface class >> asLocalObject: anOopType [
 
+"Answers a local Boolean or Integer if anOopType is a Boolean or SmallInteger from GemStone or 
+nil if anOopType is none of those types.
+Note: Caller must check for oopNil!"
+
 anOopType == self oopTrue ifTrue:[ ^ true ].
 anOopType == self oopFalse ifTrue:[ ^ false ].
-anOopType == self oopNil ifTrue:[ ^ nil ].
 (self oopIsSmallInt: anOopType) ifTrue:[ ^ self oopToSmallInt: anOopType ].
+"We could add code to check for other specials here like SmallDate, SmallTime, etc"
 ^nil "Easy cases exhausted. Caller needs to call GciTsFetchObjInfo to find out what is it."
 ]
 

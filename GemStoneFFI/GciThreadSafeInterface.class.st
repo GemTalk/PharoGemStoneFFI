@@ -53,9 +53,10 @@ result := self gciTsNbResult: session gsError: gsError.
 result == self class oopIllegal 
 	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
 tracker freeAll. "No error, so done with this."
+result == self class oopNil ifTrue:[ ^ nil ].
 ^(localResult := self class asLocalObject: result)
-	ifNil:[self fetchResultString: result maxResultSize: 1024] "Hope to heavens dthat it's a string!"
-	ifNotNil:[ localResult ]. "Boolean, nil, Integer or symbol all take this path"
+	ifNil:[self fetchResultStringOrSymbol: result maxResultSize: 1024] "Hope to heavens that it's a string or symbol!"
+	ifNotNil:[ localResult ]. "Boolean or Integer take this path"
 ]
 
 { #category : #'remote execution' }
@@ -119,37 +120,6 @@ result := self gciTsNbExecute: session
 result ~~ 1 ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
 tracker freeAll.
 ^ true
-]
-
-{ #category : #'remote execution' }
-GciThreadSafeInterface >> fetchResultString: oop maxResultSize: anInt [
-
-|tracker objInfo result resultBuffer gsError|
-
-self assertLoggedIn .
-tracker := GsMemoryTracker new.
-
-resultBuffer := tracker add: (GsExternalByteString new: anInt).
-gsError := tracker add: GciErrSType externalNew .
-objInfo := tracker add: GciTsObjInfo externalNew .
-result := self gciTsFetchObjInfo: session 
- 									 object: oop
-									 addToExportSet: 0
-									 resultInfo: objInfo
-									 resultBuffer: resultBuffer getHandle
-									 resultBufferSize: resultBuffer size 
-									gsError: gsError .
-result == -1 "Call failed, return an exception"
-	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
-objInfo objClass == self class OOP_CLASS_STRING
-  ifFalse:[ tracker freeAll. 
-				^ Error signal: ('Expected GemStone object to have class OOP_CLASS_STRING but it has class ', objInfo objClass asString)
-				].
-result := resultBuffer asByteString .
-tracker freeAll.
-^ result
-									
-
 ]
 
 { #category : #'remote execution' }
