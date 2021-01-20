@@ -43,6 +43,7 @@ C:\cygwin64\home\normg\clientlibs
 
 ```
 The directory above is your client libs directory. Remember this location, you will need it later. Note: on Windows, this must be a path in Windows format, NOT cygwin format.
+Note: slow client libs will not function properly on Windows unless you have the debug versions of the vcruntime dlls that come with MS VisualStudio 2019. Therefore it is better to use fast builds on Windows.
 
 ### Sparkle FFI Smaltalk code Installation
 If you don't already have one, choose a standard location on disk where you will locate your GitHub project clones.
@@ -64,7 +65,7 @@ GciInterface libraryDirectory: 'C:\cygwin64\home\normg\clientlibs'
 ```
 * Save the image.
 
-##That's it, you're done!
+## That's it, you're done!
 
 There are examples in classmethods in GsSession that demonstrate how to login and logout of GemStone and execute strings. To do that you will need a GemStone server running to log into.
 
