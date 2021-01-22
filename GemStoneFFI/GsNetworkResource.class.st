@@ -26,9 +26,22 @@ Class {
 }
 
 { #category : #defaults }
+GsNetworkResource class >> debugGemResourceName [
+
+^'gemnetdebug'
+]
+
+{ #category : #defaults }
 GsNetworkResource class >> defaultGemResourceName [
 
 ^'gemnetobject'
+]
+
+{ #category : #gem }
+GsNetworkResource class >> newDebugGemOnHost: aHost netldi: aNetldi [
+"Creates a new instance with a debug gem resource, directory and log patterns."
+^self newWithName: self debugGemResourceName  host: aHost netldi: aNetldi
+
 ]
 
 { #category : #gem }

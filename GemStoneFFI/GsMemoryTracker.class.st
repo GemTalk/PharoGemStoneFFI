@@ -9,7 +9,7 @@ Class {
 	#category : #GemStoneFFI
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'releasing memory' }
 GsMemoryTracker >> freeAll [
 
 self do:[:e| e free ].

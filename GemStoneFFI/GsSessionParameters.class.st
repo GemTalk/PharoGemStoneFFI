@@ -18,6 +18,15 @@ Class {
 }
 
 { #category : #'instance creation' }
+GsSessionParameters class >> newDebugForStoneName: stoneName host: hostName netldi: netldiName [
+"Createa a new instance that creates a debug gem where both the stone name stoneName and gem session are on host hostName and using netldi netldiName."
+
+^ self new 
+		stoneResource: (GsNetworkResource newForStoneNamed: stoneName host: hostName  netldi: netldiName) ;
+		gemResource: (GsNetworkResource newDebugGemOnHost: hostName netldi: netldiName ) 
+]
+
+{ #category : #'instance creation' }
 GsSessionParameters class >> newForStoneName: stoneName host: hostName netldi: netldiName [
 "Createa a new instance where both the stone name stoneName and gem session are on host hostName and using netldi netldiName."
 

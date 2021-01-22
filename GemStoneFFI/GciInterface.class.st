@@ -126,14 +126,14 @@ GciInterface class >> isThreadSafe [
 GciInterface class >> libraryDirectory [
 
 GemStoneLibraryDirectory ifNil:[
-	(GemStoneLibraryDirectory := self gemstoneLibraryPathFromEnv) ifNil:[
+	(GemStoneLibraryDirectory := self gemstoneLibraryPathFromEnv)  ifNil:[
 	|fd|
 	fd :=FileDialogWindow basicNew
         previewType: nil;
         initialize ;
         title: 'Select GemStone Library Directory';
         answerPathName.
-	GemStoneLibraryDirectory := (World openModal: fd) answer.].
+	GemStoneLibraryDirectory := fd openModal answer.].
 ].
 ^ GemStoneLibraryDirectory
 ]
@@ -145,6 +145,12 @@ GciInterface class >> libraryDirectory: aDirString [
 Note that this is NOT the same as a $GEMSTONE product tree.
 aDirString should not end with a trailing directory separator, which is removed if present."
 GemStoneLibraryDirectory := aDirString trimRight:[ :char| char == self separator] 
+]
+
+{ #category : #'library path' }
+GciInterface class >> libraryDirectoryIsSet [
+
+^ GemStoneLibraryDirectory notNil 
 ]
 
 { #category : #'instance creation' }

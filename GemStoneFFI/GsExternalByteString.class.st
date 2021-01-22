@@ -8,10 +8,19 @@ Class {
 }
 
 { #category : #'instance creation' }
-GsExternalByteString class >> new: aSize [
-"Create a new external C string object from aByteString. Caller must free the result."
+GsExternalByteString class >> new [
 
-^ self externalNewType: 'char' size: (aSize + 1)
+"Use new: or newWithNull:"
+^self shouldNotImplement 
+]
+
+{ #category : #'instance creation' }
+GsExternalByteString class >> new: aSize [
+"Create a new external C string object from aByteString. Caller must free the result.
+Does NOT allocate an extra byte for the NULL character. Don't do that here, it breaks things!
+Call newWithNull: if you want space for a NULL included in the size."
+
+^ self externalNewType: 'char' size: aSize
 
 ]
 
@@ -20,17 +29,25 @@ GsExternalByteString class >> newFromByteString: aByteString [
 "Create a new external C string object from aByteString. Caller must free the result."
 | sz result |
 sz := aByteString size.
-result := self externalNewType: 'char' size: (sz + 1).
+result := self newWithNull: sz.
 1 to: sz do:[:n| result at: n put: (aByteString at: n)].
 result at: (sz + 1) put: Character null.
 ^result
 ]
 
+{ #category : #'instance creation' }
+GsExternalByteString class >> newWithNull: aSize [
+"Create a new external C ByteString that has room for aSize bytes and a terminating NULL character. Caller must free the result."
+
+^ self new: (aSize + 1)
+
+]
+
 { #category : #converting }
 GsExternalByteString >> asByteString [ 
-	
-	^ ByteString withAll:  ((ReadStream on: self) upTo: Character null)
-	
+
+^ ByteString withAll: (self copyUpTo: Character null)
+
 ]
 
 { #category : #accessing }

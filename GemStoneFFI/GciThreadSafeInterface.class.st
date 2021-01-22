@@ -76,7 +76,7 @@ GciThreadSafeInterface >> executeStringAndFetchResultString: sourceString maxRes
 self assertLoggedIn .
 tracker := GsMemoryTracker new.
 srcCstring := self convertStringToExternalArgOrNull: sourceString  memoryTracker: tracker.
-resultBuffer := tracker add: (GsExternalByteString new: anInt).
+resultBuffer := tracker add: (GsExternalByteString newWithNull: anInt).
 gsError := tracker add: GciErrSType externalNew .
  
 result := self gciTsExecuteFetchBytes: session 
@@ -130,7 +130,7 @@ GciThreadSafeInterface >> fetchResultStringOrSymbol: oop maxResultSize: anInt [
 self assertLoggedIn .
 tracker := GsMemoryTracker new.
 
-resultBuffer := tracker add: (GsExternalByteString new: anInt).
+resultBuffer := tracker add: (GsExternalByteString newWithNull: anInt).
 gsError := tracker add: GciErrSType externalNew .
 objInfo := tracker add: GciTsObjInfo externalNew .
 result := self gciTsFetchObjInfo: session 
@@ -256,7 +256,7 @@ GciThreadSafeInterface >> gciVersionString [
 
 bufSize := 80.
 tracker := GsMemoryTracker new.
-resultBuffer := tracker add: (GsExternalByteString new: bufSize).
+resultBuffer := tracker add: (GsExternalByteString newWithNull: bufSize).
  
 "Result is the GciProduct type, which is always 3 (not interesting)."
 self gciTsVersion: resultBuffer getHandle bufferSize: bufSize.
