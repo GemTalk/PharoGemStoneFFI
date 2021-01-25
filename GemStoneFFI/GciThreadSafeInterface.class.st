@@ -150,6 +150,7 @@ isSymbol := classOop == self class OOP_CLASS_SYMBOL .
 				tracker freeAll. 
 				^ Error signal: msg
 				].
+resultBuffer at: (result + 1) put: Character null.
 result := resultBuffer asByteString .
 isSymbol ifTrue:[ result := result asSymbol ].
 tracker freeAll.
