@@ -11,12 +11,53 @@ GsSessionTest class >> newSession [
 ]
 
 { #category : #tests }
+GsSessionTest >> testGetNbCallStatus [
+|s r|
+s := self class newSession .
+self assert: (s loginWithGsUser: 'DataCurator' password: 'swordfish');
+		assert: s isLoggedIn.
+[ |delay res|
+	delay := Delay forMilliseconds: 100.
+	self assert: (s executeStringNb: 'System sleep: 3. true').
+	[ res := s getNbCallStatusWithMaxDelay: 0 ] whileFalse:[ delay wait ].
+	self assert: res.
+  r := s blockAndFetchNbResult. 
+] ensure:[ s logout ].
+self assert: r.
+^self
+]
+
+{ #category : #tests }
+GsSessionTest >> testHelloWorld [
+|s r|
+s := self class newSession .
+self assert: s class identicalTo: GsSession.
+self assert: (s loginWithGsUser: 'DataCurator' password: 'swordfish').
+[ r := s executeStringAndFetchResultString: '''Hello, World!''' ] ensure:[ s logout ].
+self assert: r equals: 'Hello, World!'.
+^self
+]
+
+{ #category : #tests }
+GsSessionTest >> testHelloWorldNb [
+|s r|
+s := self class newSession .
+self assert: s class identicalTo: GsSession.
+self assert: (s loginWithGsUser: 'DataCurator' password: 'swordfish').
+[ self assert: (s executeStringNb: '''Hello, World!''').
+  r := s blockAndFetchNbResult. ] ensure:[ s logout ].
+self assert: r equals: 'Hello, World!'.
+^self
+]
+
+{ #category : #tests }
 GsSessionTest >> testLogin [
 
 |sess|
 sess := self class newSession .
 self 
 	assert: (sess loginWithGsUser: 'DataCurator' password: 'swordfish') ;
+	assert: sess isLoggedIn ;
 	assert: sess logout .
 ^self
 

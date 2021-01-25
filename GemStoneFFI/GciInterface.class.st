@@ -186,7 +186,9 @@ GciInterface class >> oopNil [
 GciInterface class >> oopToSmallInt: anOopType [
 
 "GciInterface oopToSmallInt: 5330"
-^ anOopType bitShift: self OOP_NUM_TAG_BITS negated 
+^ (self oopIsSmallInt: anOopType)
+ ifTrue:[anOopType bitShift: self OOP_NUM_TAG_BITS negated ]
+ifFalse:[ anOopType error: 'receiver is not a GemStone SmallInteger']
 
 ]
 
