@@ -91,6 +91,25 @@ sess logout.
 ^result
 ]
 
+{ #category : #examples }
+GsSession class >> example5 [
+"Log in to GemStone and get a 10K byte array filed with random bytes.
+Be sure the path to the GCI client libraries is set. Use this code to set it if necessary:
+
+GciInterface libraryDirectory:  'C:\cygwin64\home\normg\clientlibs'
+
+GsSession example5
+"
+
+|sess result|
+sess := GsSession newForGsVersion: '3.7.0' threadSafe: true stone: 'norm' host: 'moop' netldi: '10117'.
+sess loginWithGsUser: 'DataCurator' password: 'swordfish'.
+result := sess executeStringAndFetchResultByteArray: 'ByteArray withRandomBytes: 10240' maxResultSize: 10240 . 
+sess logout.
+^result
+
+]
+
 { #category : #'instance creation' }
 GsSession class >> newForGsVersion: aGsVersion threadSafe: aBoolean [
 

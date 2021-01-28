@@ -18,6 +18,11 @@ Class {
 }
 
 { #category : #constants }
+GciInterface class >> OOP_CLASS_BYTE_ARRAY [
+	^ 103425
+]
+
+{ #category : #constants }
 GciInterface class >> OOP_CLASS_STRING [
 
 ^ 74753
