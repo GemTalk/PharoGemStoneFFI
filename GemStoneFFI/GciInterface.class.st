@@ -49,6 +49,25 @@ GciInterface class >> OOP_TAG_SPECIAL_MASK [
 	^6
 ]
 
+{ #category : #'library path' }
+GciInterface class >> addLibraryPathToSystemPath: aByteString [
+
+"On windows, add the library path to the system PATH so windows can find the vc runtime dll files.
+See bug 48680. "
+Smalltalk os isWindows ifTrue:[ |path|
+	path := Smalltalk os environment at: 'PATH' .
+	(path includesSubstring: aByteString)
+		ifFalse:[ 
+			|ws|
+			ws := WriteStream with: path.
+			path last == $; ifFalse:[ ws nextPut: $;].
+			ws nextPutAll: aByteString.
+			Smalltalk os environment at: 'PATH' put: ws contents .
+	].
+].
+^ self
+]
+
 { #category : #converting }
 GciInterface class >> asLocalObject: anOopType [
 
@@ -69,7 +88,7 @@ GciInterface class >> clearLibraryDirectory [
 ]
 
 { #category : #composing }
-GciInterface class >> composeCompleteLibraryPathForGsVersion: aGsVerString [
+GciInterface class >> composeCompleteLibraryDirectoryPathForGsVersion: aGsVerString [
 
 |ws sep|
 sep := self separator .
@@ -79,8 +98,17 @@ ws nextPutAll: self libraryDirectory ;
 	nextPutAll: aGsVerString  ; "3.6.0"
 	nextPut: sep ;
 	nextPutAll: self vmMemoryModel asString; "32 or 64"
-	nextPutAll: 'bit' ;
-	nextPut: sep ;
+	nextPutAll: 'bit' .
+^ws contents
+]
+
+{ #category : #composing }
+GciInterface class >> composeCompleteLibraryPathForGsVersion: aGsVerString [
+
+|ws sep|
+sep := self separator .
+ws := WriteStream with: (self composeCompleteLibraryDirectoryPathForGsVersion: aGsVerString ).
+ws 	nextPut: sep ;
 	nextPutAll: (self composeLibraryFileNameForGsVersion: aGsVerString)  .
 ^ws contents
 ]
@@ -161,7 +189,12 @@ GciInterface class >> libraryDirectoryIsSet [
 { #category : #'instance creation' }
 GciInterface class >> newForGsVersion: gsVersionString [
 
-^ self new gsVersionString: gsVersionString ; gsLibraryPath: (self composeCompleteLibraryPathForGsVersion: gsVersionString)
+| result |
+result := self new gsVersionString: gsVersionString ; gsLibraryPath: (self composeCompleteLibraryPathForGsVersion: gsVersionString) .
+"Windows needs this ext line. See bug 48680"
+"Do this after the above code so the library file is verified to exist."
+self addLibraryPathToSystemPath: (self composeCompleteLibraryDirectoryPathForGsVersion:  gsVersionString ) . 
+^result
 ]
 
 { #category : #constants }
@@ -241,7 +274,8 @@ GciInterface >> gsLibraryPath: aByteString [
 "aByteString is expected to be the full path to the gci library and must exist."
 	(File isFile: aByteString)
 		ifFalse:[^ FileDoesNotExistException signalWithFile: (File named: aByteString) writeMode: false] .
-	gsLibraryPath := aByteString
+	gsLibraryPath := aByteString .
+
 ]
 
 { #category : #accessing }
