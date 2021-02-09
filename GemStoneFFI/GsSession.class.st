@@ -153,7 +153,13 @@ GsSession >> gciInterface: anObject [
 { #category : #login }
 GsSession >> loginWithGsUser: uid password: pw [ 
 
-^self gciInterface loginWithHostUserId: nil hostPassword: nil gsUserId: uid gsPassword: pw sessionParameters: self sessionParameters 
+^self loginWithGsUser: uid password: pw hostUserId: nil hostPassword: nil
+]
+
+{ #category : #'as yet unclassified' }
+GsSession >> loginWithGsUser: uid password: pw hostUserId: hostu hostPassword: hostpw [
+
+^self gciInterface loginWithHostUserId: hostu hostPassword: hostpw gsUserId: uid gsPassword: pw sessionParameters: self sessionParameters 
 ]
 
 { #category : #accessing }
