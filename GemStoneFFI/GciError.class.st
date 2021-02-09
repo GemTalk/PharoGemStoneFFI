@@ -39,8 +39,8 @@ GciError class >> newForError: aGciErrSType tracker: aMemoryTracker [
 Then release the C heap memory before raising the excpetion."
 | result |
 result := self newForError: aGciErrSType .
-aMemoryTracker freeAll. "Now that we're done with aGciErrSType, free meemory."
-^ result signal: result message 
+"aMemoryTracker freeAll." "Now that we're done with aGciErrSType, free meemory."
+[result signal: result message ] ensure:[ aMemoryTracker freeAll ].
 
 ]
 

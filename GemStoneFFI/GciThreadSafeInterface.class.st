@@ -70,6 +70,7 @@ result := self gciTsNbResult: session gsError: gsError.
 result == self class oopIllegal 
 	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
 tracker freeAll. "No error, so done with this."
+gsError := nil. "Get freed C memory off the stack"
 result == self class oopNil ifTrue:[ ^ nil ].
 ^(localResult := self class asLocalObject: result)
 	ifNil:[self fetchResultByteObject: result maxResultSize: maxSize] "Hope it's a String, Symbol or ByteArray"
@@ -89,10 +90,9 @@ gciResult == -1 ifFalse:[ ^ self ].
 GciThreadSafeInterface >> checkSpaceForBufferSize: bufSize resultSize: resultSize tracker: tracker [
 
 	resultSize <= bufSize ifTrue:[ ^ self ]. "We have enough room"
-	tracker freeAll.
-	^ self error: ('Result buffer size (' , bufSize asString,
+	^ [self error: ('Result buffer size (' , bufSize asString,
 		  ') is too small (Gci returned ' , resultSize asString,
-		  ' bytes)')
+		  ' bytes)')] ensure:[ tracker freeAll ].
 ]
 
 { #category : #'remote execution' }
@@ -345,6 +345,7 @@ result := self gciTsNbPoll: session timeoutMs: delayMs gsError: gsError.
 result == -1 
 	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
 tracker freeAll.
+gsError := nil. "Get freed C memory off the stack"
 result == 1 ifTrue:[ ^ true ].
 result == 0 ifTrue:[ ^ false ].
 "Should not be here!"
@@ -435,7 +436,6 @@ session := nil.
 "Got an error logging out"
 
 result := GciError newForError:  gsError. "Build a coherent exception before freeing gsError"
-tracker freeAll. "free all memory"
-^result signal: result message
+[result signal: result message ] ensure:[ tracker freeAll ]
 
 ]
