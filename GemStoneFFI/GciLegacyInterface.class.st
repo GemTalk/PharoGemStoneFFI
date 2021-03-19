@@ -3,12 +3,12 @@ The class used to call the legacy non-thread-safe GCI via the Pharo FFI.
 Not yet implemented, contact Norm Green if you need it to work.
 "
 Class {
-	#name : #GciLegacyInterface,
-	#superclass : #GciInterface,
-	#category : #GemStoneFFI
+	#name : 'GciLegacyInterface',
+	#superclass : 'GciInterface',
+	#category : 'GemStoneFFI'
 }
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciLegacyInterface class >> fileNameStem [
 
 "Gci Lbraries are named this way:
@@ -16,7 +16,7 @@ GciLegacyInterface class >> fileNameStem [
 ^ 'libgcirpc-'
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 GciLegacyInterface class >> isThreadSafe [
 	^ false
 ]

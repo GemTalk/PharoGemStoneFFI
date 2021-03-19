@@ -1,6 +1,6 @@
-Extension { #name : #FFICalloutAPI }
+Extension { #name : 'FFICalloutAPI' }
 
-{ #category : #'*GemStoneFFI' }
+{ #category : '*GemStoneFFI' }
 FFICalloutAPI >> function: functionSignature library: moduleNameOrLibrary [
 
 	| sender ffiMethod ffiMethodSelector |

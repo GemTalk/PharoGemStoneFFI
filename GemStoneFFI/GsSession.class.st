@@ -8,16 +8,30 @@ Instance Variables
 
 "
 Class {
-	#name : #GsSession,
-	#superclass : #Object,
+	#name : 'GsSession',
+	#superclass : 'Object',
 	#instVars : [
 		'gciInterface',
 		'sessionParameters'
 	],
-	#category : #GemStoneFFI
+	#classVars : [
+		'AllSessions'
+	],
+	#category : 'GemStoneFFI'
 }
 
-{ #category : #examples }
+{ #category : 'Session Tracking' }
+GsSession class >> addSession: aSession [
+
+AllSessions add: aSession
+]
+
+{ #category : 'as yet unclassified' }
+GsSession class >> cleanupOldSessions [
+	AllSessions removeAll 
+]
+
+{ #category : 'examples' }
 GsSession class >> example1 [
 "Get the GCI version string from the 3.7.0 GCI library and the path to the gci library file.
 Be sure the path to the GCI client libraries is set. Use this code to set it if necessary:
@@ -31,7 +45,7 @@ sess := GsSession newForGsVersion: '3.7.0' threadSafe: true stone: 'norm' host: 
 
 ]
 
-{ #category : #examples }
+{ #category : 'examples' }
 GsSession class >> example2 [
 "Log in to GemStone and get the file size report via blocking RPC call.
 Be sure the path to the GCI client libraries is set. Use this code to set it if necessary:
@@ -50,7 +64,7 @@ sess logout.
 
 ]
 
-{ #category : #'examples (non-blocking)' }
+{ #category : 'examples (non-blocking)' }
 GsSession class >> example3 [
 "Log in to GemStone and get the file size report via nonblocking RPC call.
 Be sure the path to the GCI client libraries is set. Use this code to set it if necessary:
@@ -70,7 +84,7 @@ sess logout.
 ^Array with: result with: timeMicro
 ]
 
-{ #category : #'examples (non-blocking)' }
+{ #category : 'examples (non-blocking)' }
 GsSession class >> example4 [
 "Log in to GemStone and get the file size report via nonblocking RPC call.
 Be sure the path to the GCI client libraries is set. Use this code to set it if necessary:
@@ -91,7 +105,7 @@ sess logout.
 ^result
 ]
 
-{ #category : #examples }
+{ #category : 'examples' }
 GsSession class >> example5 [
 "Log in to GemStone and get a 10K byte array filed with random bytes.
 Be sure the path to the GCI client libraries is set. Use this code to set it if necessary:
@@ -110,7 +124,20 @@ sess logout.
 
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'class initialization' }
+GsSession class >> initialize [ 
+
+"Init class var"
+AllSessions ifNil:[ AllSessions := IdentitySet new ].
+
+"Add startup hook to clear stale sessions."
+(SessionManager default hasRegistered: self name asString)
+  ifFalse:[ SessionManager default register: (ClassSessionHandler forClassNamed: self name asString)
+				inCategory: SessionManager default systemCategory.
+		].
+]
+
+{ #category : 'instance creation' }
 GsSession class >> newForGsVersion: aGsVersion threadSafe: aBoolean [
 
 |gci|
@@ -120,7 +147,7 @@ self new gciInterface: gci.
 
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 GsSession class >> newForGsVersion: aGsVersion threadSafe: aBoolean stone: stoneName host: hostName netldi: netldiName [
 
 |gci parms|
@@ -133,41 +160,84 @@ parms := GsSessionParameters newForStoneName: stoneName host: hostName netldi: n
 
 ]
 
-{ #category : #'reflective operations' }
+{ #category : 'Session Tracking' }
+GsSession class >> removeSession: aSession [
+
+AllSessions remove: aSession ifAbsent: [  ]
+]
+
+{ #category : 'Session Tracking' }
+GsSession class >> sessionIsValid: aSession [
+
+^ AllSessions includes: aSession
+]
+
+{ #category : 'system startup' }
+GsSession class >> shutdown: aBool [
+
+Transcript show: ('Got shutdown:', aBool asString)
+]
+
+{ #category : 'system startup' }
+GsSession class >> startUp: coldStart [
+
+coldStart ifTrue:[ self initialize ; cleanupOldSessions ].
+
+]
+
+{ #category : 'reflective operations' }
 GsSession >> doesNotUnderstand: aMessage [
 	^ self gciInterface
 		perform: aMessage selector 
 		withArguments: aMessage arguments
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GsSession >> gciInterface [
 	^ gciInterface
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GsSession >> gciInterface: anObject [
 	gciInterface := anObject
 ]
 
-{ #category : #login }
+{ #category : 'login' }
 GsSession >> loginWithGsUser: uid password: pw [ 
 
 ^self loginWithGsUser: uid password: pw hostUserId: nil hostPassword: nil
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'login' }
 GsSession >> loginWithGsUser: uid password: pw hostUserId: hostu hostPassword: hostpw [
 
-^self gciInterface loginWithHostUserId: hostu hostPassword: hostpw gsUserId: uid gsPassword: pw sessionParameters: self sessionParameters 
+self gciInterface loginWithHostUserId: hostu hostPassword: hostpw gsUserId: uid gsPassword: pw sessionParameters: self sessionParameters.
+self class addSession: self.
+^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'login' }
+GsSession >> logout [
+
+[(self class sessionIsValid: self) ifTrue:[ gciInterface logout ] ] ensure:[ self class removeSession: self ]
+
+
+]
+
+{ #category : 'login' }
+GsSession >> logoutNoError [
+
+[(self class sessionIsValid: self) ifTrue:[ gciInterface logoutNoError] ] ensure:[ self class removeSession: self ]
+
+
+]
+
+{ #category : 'accessing' }
 GsSession >> sessionParameters [
 	^ sessionParameters
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GsSession >> sessionParameters: anObject [
 	sessionParameters := anObject
 ]

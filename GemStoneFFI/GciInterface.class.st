@@ -2,8 +2,8 @@
 Abstract superclass for Gci interfaces. Contains behavior used by both the thread-safe and non-thread-safe subclasses.
 "
 Class {
-	#name : #GciInterface,
-	#superclass : #Object,
+	#name : 'GciInterface',
+	#superclass : 'Object',
 	#instVars : [
 		'gsVersionString',
 		'gsLibraryPath'
@@ -14,42 +14,42 @@ Class {
 	#pools : [
 		'GciTypes'
 	],
-	#category : #GemStoneFFI
+	#category : 'GemStoneFFI'
 }
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciInterface class >> OOP_CLASS_BYTE_ARRAY [
 	^ 103425
 ]
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciInterface class >> OOP_CLASS_STRING [
 
 ^ 74753
 ]
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciInterface class >> OOP_CLASS_SYMBOL [
 
 ^ 110849
 ]
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciInterface class >> OOP_NUM_TAG_BITS [
 	^3
 ]
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciInterface class >> OOP_TAG_SMALLINT [
 	^2
 ]
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciInterface class >> OOP_TAG_SPECIAL_MASK [
 	^6
 ]
 
-{ #category : #'library path' }
+{ #category : 'library path' }
 GciInterface class >> addLibraryPathToSystemPath: aByteString [
 
 "On windows, add the library path to the system PATH so windows can find the vc runtime dll files.
@@ -68,7 +68,7 @@ Smalltalk os isWindows ifTrue:[ |path|
 ^ self
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 GciInterface class >> asLocalObject: anOopType [
 
 "Answers a local Boolean or Integer if anOopType is a Boolean or SmallInteger from GemStone or 
@@ -82,12 +82,12 @@ anOopType == self oopFalse ifTrue:[ ^ false ].
 ^nil "Easy cases exhausted. Caller needs to call GciTsFetchObjInfo to find out what is it."
 ]
 
-{ #category : #'library path' }
+{ #category : 'library path' }
 GciInterface class >> clearLibraryDirectory [ 
 	GemStoneLibraryDirectory := nil
 ]
 
-{ #category : #composing }
+{ #category : 'composing' }
 GciInterface class >> composeCompleteLibraryDirectoryPathForGsVersion: aGsVerString [
 
 |ws sep|
@@ -102,7 +102,7 @@ ws nextPutAll: self libraryDirectory ;
 ^ws contents
 ]
 
-{ #category : #composing }
+{ #category : 'composing' }
 GciInterface class >> composeCompleteLibraryPathForGsVersion: aGsVerString [
 
 |ws sep|
@@ -113,7 +113,7 @@ ws 	nextPut: sep ;
 ^ws contents
 ]
 
-{ #category : #composing }
+{ #category : 'composing' }
 GciInterface class >> composeLibraryFileNameForGsVersion: aVerString [
 
 "Gci Lbraries are named this way:
@@ -121,7 +121,7 @@ GciInterface class >> composeLibraryFileNameForGsVersion: aVerString [
 ^ self fileNameStem , aVerString, '-', self vmMemoryModel asString, '.', self sharedLibraryExtension
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 GciInterface class >> convertStringToExternalArgOrNull: byteString memoryTracker: tracker [
 
 "Converts a byteString to an external string which can be passed to the FFI as a C string.
@@ -132,7 +132,7 @@ For non-empy strings, add the result to tracker so the caller can free the memor
 	ifFalse:[ FFIExternalObject null]
 ]
 
-{ #category : #subclassresponsibility }
+{ #category : 'subclassresponsibility' }
 GciInterface class >> fileNameStem [
 
 "Gci Lbraries are named this way:
@@ -140,22 +140,22 @@ GciInterface class >> fileNameStem [
 ^ self subclassResponsibility 
 ]
 
-{ #category : #'library path' }
+{ #category : 'library path' }
 GciInterface class >> gemstoneLibraryEnvVarName [
 ^ 'GEMSTONE_LIB_DIR'
 ]
 
-{ #category : #'library path' }
+{ #category : 'library path' }
 GciInterface class >> gemstoneLibraryPathFromEnv [
 ^Smalltalk os environment at: self gemstoneLibraryEnvVarName  ifAbsent:[ nil ]
 ]
 
-{ #category : #subclassresponsibility }
+{ #category : 'subclassresponsibility' }
 GciInterface class >> isThreadSafe [
 	^self subclassResponsibility 
 ]
 
-{ #category : #'library path' }
+{ #category : 'library path' }
 GciInterface class >> libraryDirectory [
 
 GemStoneLibraryDirectory ifNil:[
@@ -166,27 +166,29 @@ GemStoneLibraryDirectory ifNil:[
         initialize ;
         title: 'Select GemStone Library Directory';
         answerPathName.
-	GemStoneLibraryDirectory := fd openModal answer.].
+	self libraryDirectory: fd openModal answer ].
 ].
 ^ GemStoneLibraryDirectory
 ]
 
-{ #category : #'library path' }
+{ #category : 'library path' }
 GciInterface class >> libraryDirectory: aDirString [
 
 "Sets the GemStone shared library directory. Subdirectories of this directory will be dotted version names such as 3.6.1, 3.6.2, etc.
 Note that this is NOT the same as a $GEMSTONE product tree.
 aDirString should not end with a trailing directory separator, which is removed if present."
-GemStoneLibraryDirectory := aDirString trimRight:[ :char| char == self separator] 
+GemStoneLibraryDirectory := aDirString trimRight:[ :char| char == self separator] .
+
+GsSession initialize.
 ]
 
-{ #category : #'library path' }
+{ #category : 'library path' }
 GciInterface class >> libraryDirectoryIsSet [
 
 ^ GemStoneLibraryDirectory notNil 
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 GciInterface class >> newForGsVersion: gsVersionString [
 
 | result |
@@ -197,17 +199,17 @@ self addLibraryPathToSystemPath: (self composeCompleteLibraryDirectoryPathForGsV
 ^result
 ]
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciInterface class >> oopFalse [
 	^ 12
 ]
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciInterface class >> oopIllegal [
 	^ 1
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 GciInterface class >> oopIsSmallInt: anOopType [
 
 "GciInterface oopIsSmallInt: 5330"
@@ -215,12 +217,12 @@ GciInterface class >> oopIsSmallInt: anOopType [
 
 ]
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciInterface class >> oopNil [
 	^ 20
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 GciInterface class >> oopToSmallInt: anOopType [
 
 "GciInterface oopToSmallInt: 5330"
@@ -230,19 +232,19 @@ ifFalse:[ anOopType error: 'receiver is not a GemStone SmallInteger']
 
 ]
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciInterface class >> oopTrue [
 	^ 268
 ]
 
-{ #category : #convenience }
+{ #category : 'convenience' }
 GciInterface class >> separator [ 
 
 ^ Smalltalk os environment platform isWindows ifTrue:[  $\ ] ifFalse:[ $/ ]
 
 ]
 
-{ #category : #convenience }
+{ #category : 'convenience' }
 GciInterface class >> sharedLibraryExtension [
 | plat |
 plat := Smalltalk os environment platform .
@@ -252,24 +254,24 @@ plat isUnix ifTrue:[ ^ 'so' ].
 self error: 'unknown platform'
 ]
 
-{ #category : #convenience }
+{ #category : 'convenience' }
 GciInterface class >> vmMemoryModel [
 	^Smalltalk vm is64bit ifTrue:[ 64 ] ifFalse:[ 32 ]
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 GciInterface >> convertStringToExternalArgOrNull: byteString memoryTracker: tracker [
 
 "Converts a ByteString to an external address"
 ^self class convertStringToExternalArgOrNull: byteString memoryTracker: tracker
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciInterface >> gsLibraryPath [
 	^ gsLibraryPath
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciInterface >> gsLibraryPath: aByteString [
 "aByteString is expected to be the full path to the gci library and must exist."
 	(File isFile: aByteString)
@@ -278,17 +280,17 @@ GciInterface >> gsLibraryPath: aByteString [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciInterface >> gsVersionString [
 	^ gsVersionString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciInterface >> gsVersionString: anObject [
 	gsVersionString := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciInterface >> isThreadSafe [
 	^self class isThreadSafe 
 ]

@@ -5,15 +5,15 @@ Instance Variables:
 -session (ExternalData) - a reference to the GciSession object in C heap memory. All Gci thread safe calls take the session as an argument.
 "
 Class {
-	#name : #GciThreadSafeInterface,
-	#superclass : #GciInterface,
+	#name : 'GciThreadSafeInterface',
+	#superclass : 'GciInterface',
 	#instVars : [
 		'session'
 	],
-	#category : #GemStoneFFI
+	#category : 'GemStoneFFI'
 }
 
-{ #category : #constants }
+{ #category : 'constants' }
 GciThreadSafeInterface class >> fileNameStem [
 
 "Gci Lbraries are named this way:
@@ -21,24 +21,24 @@ GciThreadSafeInterface class >> fileNameStem [
 ^ 'libgcits-'
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 GciThreadSafeInterface class >> isThreadSafe [
 	^ true
 ]
 
-{ #category : #assertions }
+{ #category : 'assertions' }
 GciThreadSafeInterface >> assertLoggedIn [
 
 self isLoggedIn ifFalse:[ self error: 'Session is not yet logged in!']
 ]
 
-{ #category : #assertions }
+{ #category : 'assertions' }
 GciThreadSafeInterface >> assertNotLoggedIn [
 
 self isLoggedIn ifTrue:[ self error: 'Session is already logged in']
 ]
 
-{ #category : #'remote execution (nonblocking)' }
+{ #category : 'remote execution (nonblocking)' }
 GciThreadSafeInterface >> blockAndFetchNbResult [
 
 "Blocks until the result of a previous non-blocking executeString method is ready.
@@ -52,7 +52,7 @@ To check the nonblocking call status without blocking use the method: getNbCallS
 
 ]
 
-{ #category : #'remote execution (nonblocking)' }
+{ #category : 'remote execution (nonblocking)' }
 GciThreadSafeInterface >> blockAndFetchNbResultWithMaxSize: maxSize [
 
 "Blocks until the result of a previous non-blocking executeString method is ready.
@@ -77,7 +77,7 @@ result == self class oopNil ifTrue:[ ^ nil ].
 	ifNotNil:[ localResult ]. "Boolean or Integer take this path"
 ]
 
-{ #category : #'error handling' }
+{ #category : 'error handling' }
 GciThreadSafeInterface >> checkGciResult: gciResult gsError: gsError tracker: tracker [
 
 gciResult == -1 ifFalse:[ ^ self ].
@@ -86,7 +86,7 @@ gciResult == -1 ifFalse:[ ^ self ].
 ^ GciError newForError: gsError tracker: tracker
 ]
 
-{ #category : #'error handling' }
+{ #category : 'error handling' }
 GciThreadSafeInterface >> checkSpaceForBufferSize: bufSize resultSize: resultSize tracker: tracker [
 
 	resultSize <= bufSize ifTrue:[ ^ self ]. "We have enough room"
@@ -95,7 +95,7 @@ GciThreadSafeInterface >> checkSpaceForBufferSize: bufSize resultSize: resultSiz
 		  ' bytes)')] ensure:[ tracker freeAll ].
 ]
 
-{ #category : #'remote execution' }
+{ #category : 'remote execution' }
 GciThreadSafeInterface >> executeStringAndFetchResultByteArray: sourceString maxResultSize: maxSize [
 
 "Executes sourceString which is expected to return a ByteArray of no more than maxSize elements."
@@ -103,7 +103,7 @@ GciThreadSafeInterface >> executeStringAndFetchResultByteArray: sourceString max
 
 ]
 
-{ #category : #'remote execution' }
+{ #category : 'remote execution' }
 GciThreadSafeInterface >> executeStringAndFetchResultBytes: sourceString maxResultSize: maxSize asByteArray: asByteArrayBoolean [
 
 "Executes sourceString which is expected to return a byte object.
@@ -139,7 +139,7 @@ tracker freeAll.
 
 ]
 
-{ #category : #'remote execution' }
+{ #category : 'remote execution' }
 GciThreadSafeInterface >> executeStringAndFetchResultString: sourceString [ 
 
 "Compiles and executes sourceString on GemStone. Assumes the result of the executing is a String object.
@@ -148,14 +148,14 @@ Returns a ByteString on success or raises an exception if an error occurs."
 
 ]
 
-{ #category : #'remote execution' }
+{ #category : 'remote execution' }
 GciThreadSafeInterface >> executeStringAndFetchResultString: sourceString maxResultSize: anInt [
 
 ^ self executeStringAndFetchResultBytes: sourceString maxResultSize: anInt asByteArray: false
 
 ]
 
-{ #category : #'remote execution (nonblocking)' }
+{ #category : 'remote execution (nonblocking)' }
 GciThreadSafeInterface >> executeStringNb: sourceString [
 
 "Starts remote execution of the string sourceString.
@@ -180,7 +180,7 @@ tracker freeAll.
 ^ true
 ]
 
-{ #category : #'remote execution' }
+{ #category : 'remote execution' }
 GciThreadSafeInterface >> fetchResultByteObject: oop maxResultSize: maxSize [
 
 |tracker objInfo result gciResult resultBuffer gsError isSymbol classOop|
@@ -223,7 +223,7 @@ tracker freeAll.
 
 ]
 
-{ #category : #'ffi calls' }
+{ #category : 'ffi calls' }
 GciThreadSafeInterface >> gciTsExecuteFetchBytes: sess sourceString: sourceString sourceStringSize: sourceStringSize sourceOop: sourceOop contextObject: contextObject symbolList: symbolList resultBuffer: resultBuffer resultBufferSize: resultBufferSize gsError: gsError [
 
 ^self ffiCall: #( int64 GciTsExecuteFetchBytes(
@@ -238,7 +238,7 @@ GciThreadSafeInterface >> gciTsExecuteFetchBytes: sess sourceString: sourceStrin
 											GciErrSType *gsError)) library: self gsLibraryPath 
 ]
 
-{ #category : #'ffi calls' }
+{ #category : 'ffi calls' }
 GciThreadSafeInterface >> gciTsFetchObjInfo: sess object: objId addToExportSet: aBoolean resultInfo: aGciTsObjInfo resultBuffer: resultBuffer resultBufferSize: resultBufferSize gsError: gsError [ 
 
 ^self ffiCall: #( int64 GciTsFetchObjInfo(
@@ -251,7 +251,7 @@ GciThreadSafeInterface >> gciTsFetchObjInfo: sess object: objId addToExportSet: 
 											GciErrSType *gsError)) library: self gsLibraryPath 
 ]
 
-{ #category : #'ffi calls' }
+{ #category : 'ffi calls' }
 GciThreadSafeInterface >> gciTsLoginToStone: stnNrs hostUserId: hostUid hostPassword: hostPw hostPwIsEncrypted: hostPwEnc gemNrs: gemNrs gsUserId: gsUid gsPassword: gsPw loginFlags: lFlags haltOnErrorNum: haltNum executedSessInit: aBoolPtr err: gsErrSType [
 "Low level FFI call to login using the Gci thread-safe library."
 			
@@ -269,14 +269,14 @@ GciThreadSafeInterface >> gciTsLoginToStone: stnNrs hostUserId: hostUid hostPass
 			library: self gsLibraryPath 
 ]
 
-{ #category : #'ffi calls' }
+{ #category : 'ffi calls' }
 GciThreadSafeInterface >> gciTsLogout: sess gsError: gsError [
 "Low level FFI call to logout using the Gci thread-safe library."
 			
 ^ self ffiCall: #( BoolType GciTsLogout(void *sess, GciErrSType *gsError) ) library: self gsLibraryPath 
 ]
 
-{ #category : #'ffi calls' }
+{ #category : 'ffi calls' }
 GciThreadSafeInterface >> gciTsNbExecute: sess sourceString: sourceString sourceOop: sourceOop contextObject: contextObject symbolList: symbolList flags: flags envId: envId gsError: gsError [
 
 ^self ffiCall: #( BoolType GciTsNbExecute(
@@ -290,7 +290,7 @@ GciThreadSafeInterface >> gciTsNbExecute: sess sourceString: sourceString source
 											GciErrSType *gsError)) library: self gsLibraryPath 
 ]
 
-{ #category : #'ffi calls' }
+{ #category : 'ffi calls' }
 GciThreadSafeInterface >> gciTsNbPoll: sess timeoutMs: timeoutMs gsError: gsError [
 
 ^self ffiCall: #( int GciTsNbPoll(
@@ -299,7 +299,7 @@ GciThreadSafeInterface >> gciTsNbPoll: sess timeoutMs: timeoutMs gsError: gsErro
 											GciErrSType *gsError)) library: self gsLibraryPath 
 ]
 
-{ #category : #'ffi calls' }
+{ #category : 'ffi calls' }
 GciThreadSafeInterface >> gciTsNbResult: sess gsError: gsError [
 
 ^self ffiCall: #( OopType GciTsNbResult(
@@ -307,14 +307,14 @@ GciThreadSafeInterface >> gciTsNbResult: sess gsError: gsError [
 											GciErrSType *gsError)) library: self gsLibraryPath 
 ]
 
-{ #category : #'ffi calls' }
+{ #category : 'ffi calls' }
 GciThreadSafeInterface >> gciTsVersion: buffer bufferSize: bufSize [
 "Low level FFI call to logout using the Gci thread-safe library."
 			
 ^ self ffiCall: #( uint32 GciTsVersion(char *buffer, size_t bufSize) ) library: self gsLibraryPath 
 ]
 
-{ #category : #'remote execution' }
+{ #category : 'remote execution' }
 GciThreadSafeInterface >> gciVersionString [
 
 |tracker result resultBuffer bufSize|
@@ -333,7 +333,7 @@ tracker freeAll.
 
 ]
 
-{ #category : #'remote execution (nonblocking)' }
+{ #category : 'remote execution (nonblocking)' }
 GciThreadSafeInterface >> getNbCallStatusWithMaxDelay: delayMs [
 
 "Check for completion of a nonblocking call. Block for delayMs to wait for the call to complete. If delayMs is -1, block forever until the call completes. Answer true if the nonblocking call completed or false if it has not. Otherwise raise an exception inindicating the session has been terminated."
@@ -352,12 +352,12 @@ result == 0 ifTrue:[ ^ false ].
 ^ self error: ('Unexpected result from gciTsNbPoll call: ', result asString)
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 GciThreadSafeInterface >> isLoggedIn [
 ^ session ~~ nil
 ]
 
-{ #category : #Login }
+{ #category : 'Login' }
 GciThreadSafeInterface >> loginWithHostUserId: hostId hostPassword: hostPw gsUserId: gsUserId gsPassword: gsPw sessionParameters: parms [
 
 |exStnNrs exHostId exHostPw exHostPwEnc exGemNrs exGsUid exGsPw exLoginFlags exHaltOnErrNum exBoolPtr gsError result tracker|
@@ -399,7 +399,7 @@ tracker freeAll.
 
 ]
 
-{ #category : #Login }
+{ #category : 'Login' }
 GciThreadSafeInterface >> logout [
 
 "Logout the session. Raise an error if the session is not logged in or GsTsLogout returns an error. Return true on success."
@@ -407,14 +407,14 @@ GciThreadSafeInterface >> logout [
 
 ]
 
-{ #category : #Login }
+{ #category : 'Login' }
 GciThreadSafeInterface >> logoutNoError [
 "Same as logout except that errors are ignored. Returns true."
 ^self logoutNoError: true
 
 ]
 
-{ #category : #Login }
+{ #category : 'Login' }
 GciThreadSafeInterface >> logoutNoError: noError [
 
 "Logout the session. If noError is true, then errors are ignored and no exceptions are raised.

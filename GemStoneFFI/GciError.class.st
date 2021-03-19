@@ -10,18 +10,18 @@ Instance Variables
 
 "
 Class {
-	#name : #GciError,
-	#superclass : #Error,
+	#name : 'GciError',
+	#superclass : 'Error',
 	#instVars : [
 		'number',
 		'fatal',
 		'message',
 		'reason'
 	],
-	#category : #GemStoneFFI
+	#category : 'GemStoneFFI'
 }
 
-{ #category : #signalling }
+{ #category : 'signalling' }
 GciError class >> newForError: aGciErrSType [
 
 | ex |
@@ -33,7 +33,7 @@ ex	fatal: aGciErrSType fatal ;
 ^ ex
 ]
 
-{ #category : #signalling }
+{ #category : 'signalling' }
 GciError class >> newForError: aGciErrSType tracker: aMemoryTracker [
 "Build an exception for an GemStone FFI call using the error in aGciErrSType .
 Then release the C heap memory before raising the excpetion."
@@ -44,7 +44,7 @@ result := self newForError: aGciErrSType .
 
 ]
 
-{ #category : #signalling }
+{ #category : 'signalling' }
 GciError class >> signalFrom: aGciErrSType [
 
 | ex |
@@ -56,42 +56,42 @@ ex	fatal: aGciErrSType fatal ;
 ^ ex signal:  ex message
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciError >> fatal [
 	^ fatal
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciError >> fatal: anObject [
 	fatal := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciError >> message [
 	^ message
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciError >> message: anObject [
 	message := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciError >> number [
 	^ number
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciError >> number: anObject [
 	number := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciError >> reason [
 	^ reason
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GciError >> reason: anObject [
 	reason := anObject
 ]

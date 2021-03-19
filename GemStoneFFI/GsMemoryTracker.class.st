@@ -4,12 +4,12 @@ A simple OrderedCollection used to track memroy alllocated on the C-heap by the 
 The #freeAll message frees all memory in the receiver and empties the collection.
 "
 Class {
-	#name : #GsMemoryTracker,
-	#superclass : #OrderedCollection,
-	#category : #GemStoneFFI
+	#name : 'GsMemoryTracker',
+	#superclass : 'OrderedCollection',
+	#category : 'GemStoneFFI'
 }
 
-{ #category : #'releasing memory' }
+{ #category : 'releasing memory' }
 GsMemoryTracker >> freeAll [
 
 self do:[:e| e free ].

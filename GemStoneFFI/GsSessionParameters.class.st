@@ -8,16 +8,16 @@ Instance Variables:
 
 "
 Class {
-	#name : #GsSessionParameters,
-	#superclass : #Object,
+	#name : 'GsSessionParameters',
+	#superclass : 'Object',
 	#instVars : [
 		'stoneResource',
 		'gemResource'
 	],
-	#category : #GemStoneFFI
+	#category : 'GemStoneFFI'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 GsSessionParameters class >> newDebugForStoneName: stoneName host: hostName netldi: netldiName [
 "Createa a new instance that creates a debug gem where both the stone name stoneName and gem session are on host hostName and using netldi netldiName."
 
@@ -26,7 +26,7 @@ GsSessionParameters class >> newDebugForStoneName: stoneName host: hostName netl
 		gemResource: (GsNetworkResource newDebugGemOnHost: hostName netldi: netldiName ) 
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 GsSessionParameters class >> newForStoneName: stoneName host: hostName netldi: netldiName [
 "Createa a new instance where both the stone name stoneName and gem session are on host hostName and using netldi netldiName."
 
@@ -35,38 +35,38 @@ GsSessionParameters class >> newForStoneName: stoneName host: hostName netldi: n
 		gemResource: (GsNetworkResource newDefaultGemOnHost: hostName netldi: netldiName ) 
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 GsSessionParameters class >> newWithStoneResource: stoneNetworkResource gemResource: gemNetworkResource [
 
 ^ self new stoneResource: stoneNetworkResource ; gemResource: gemNetworkResource 
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 GsSessionParameters >> gemNrs [
 	^self gemResource asNrsString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GsSessionParameters >> gemResource [
 	^ gemResource
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GsSessionParameters >> gemResource: anObject [
 	gemResource := anObject
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 GsSessionParameters >> stoneNrs [
 	^self stoneResource asNrsString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GsSessionParameters >> stoneResource [
 	^ stoneResource
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 GsSessionParameters >> stoneResource: anObject [
 	stoneResource := anObject
 ]
