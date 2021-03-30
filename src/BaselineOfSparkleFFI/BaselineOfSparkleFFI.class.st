@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : 'baselines' }
-BaselineOfSparkle >> baseline: spec [
+BaselineOfSparkleFFI >> baseline: spec [
 
 	<baseline>
 	spec for: #pharo do: [ 
