@@ -1,7 +1,7 @@
 Class {
 	#name : 'BaselineOfSparkleFFI',
 	#superclass : 'BaselineOf',
-	#category : 'BaselineOfSparkle'
+	#category : 'BaselineOfSparkleFFI'
 }
 
 { #category : 'baselines' }
