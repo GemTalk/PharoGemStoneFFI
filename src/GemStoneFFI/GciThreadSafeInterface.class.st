@@ -439,3 +439,19 @@ result := GciError newForError:  gsError. "Build a coherent exception before fre
 [result signal: result message ] ensure:[ tracker freeAll ]
 
 ]
+
+{ #category : 'remote execution (nonblocking)' }
+GciThreadSafeInterface >> startWaitForResultThread [
+
+[ | done delay |
+	delay := Delay forSeconds: 1.
+	done := false.
+	[ done ] whileFalse:[
+	(self getNbCallStatusWithMaxDelay: 0) "Poll socket without blocking"
+		ifTrue:[ self blockAndFetchNbResult. "Fetch result or raise error"
+					done := true. ]
+		ifFalse:[ delay wait].
+	].
+] fork .
+^ true
+]
