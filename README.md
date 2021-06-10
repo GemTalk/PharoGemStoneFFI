@@ -11,7 +11,7 @@ The build step [slow|fast]clientlibs generates a zip file containing these libra
 
 ## Installation
 
-If you are installing Sparkle, it will automatically install SparkleFFI, and there is no need to perform an manual install of SparkleFFI.  See [Sparkle on github(https://github.com/GemTalk/Sparkle); the Installation Guide is under Documentation.
+If you are installing Sparkle, it will automatically install SparkleFFI, and there is no need to perform an manual install of SparkleFFI.  See [Sparkle on github](https://github.com/GemTalk/Sparkle); the Installation Guide is under Documentation.
 
 ### Client Library Installation
 Choose a location for the client library files and copy the client library zip file to that location. ClientLibs for Alpha1 are available here:
