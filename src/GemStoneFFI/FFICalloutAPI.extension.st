@@ -22,7 +22,7 @@ FFICalloutAPI >> function: functionSignature library: moduleNameOrLibrary [
 	and Pharo caches the function pointer in the new compile method.
 	This becomes a problem when we change GCI versions and the wrong GCI library is called!
 	If there's a better way to do this I'd love to know about it."
-	( '*libgci*' match: moduleNameOrLibrary libraryName)
+	( '*libgci*' match: moduleNameOrLibrary asFFILibrary libraryName)
 		ifFalse:[
 			sender methodClass methodDict at: sender selector put: ffiMethod.	
 			FFIMethodRegistry uniqueInstance registerMethod: ffiMethod .
