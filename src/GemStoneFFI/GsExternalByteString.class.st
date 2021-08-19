@@ -57,10 +57,34 @@ result := ByteArray new: aSize.
 ]
 
 { #category : 'converting' }
-GsExternalByteString >> asByteString [ 
+GsExternalByteString >> asByteString [
 
-^ ByteString withAll: (self copyUpTo: Character null)
+	"If I am null-terminated, answer a ByteString containing my bytes up to the first null. 
+	Otherwise, answer a ByteString with my full contents.
+	This is done byte-wise and may well do the wrong thing for code points > 127."
 
+	| stream null |
+	stream := WriteStream on: (ByteString new: size).
+	null := Character null.
+	self do: [ :each | 
+		each = null
+			ifTrue: [ ^ stream contents ]
+			ifFalse: [ stream nextPut: each ] ].
+	^ stream contents
+]
+
+{ #category : 'converting' }
+GsExternalByteString >> asByteStringOfSize: requestedSize [
+
+	"Answer a ByteString of the lesser size of my size or the given size,
+	containing my bytes up to that size.
+	This is done byte-wise and may well do the wrong thing for code points > 127."
+
+	| resultSize result |
+	resultSize := requestedSize min: self size.
+	result := ByteString new: resultSize.
+	1 to: resultSize do: [ :i | result at: i put: (self at: i) ].
+	^ result
 ]
 
 { #category : 'accessing' }

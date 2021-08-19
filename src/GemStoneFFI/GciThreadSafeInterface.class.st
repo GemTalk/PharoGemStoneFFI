@@ -106,37 +106,43 @@ GciThreadSafeInterface >> executeStringAndFetchResultByteArray: sourceString max
 { #category : 'remote execution' }
 GciThreadSafeInterface >> executeStringAndFetchResultBytes: sourceString maxResultSize: maxSize asByteArray: asByteArrayBoolean [
 
-"Executes sourceString which is expected to return a byte object.
+	"Executes sourceString which is expected to return a byte object.
 If asByteArrayBoolean is true, then the result is expected to be a ByteArray.
 If asByteArrayBoolean is false, then the result expected to be a BytesString.
 
 Raises an error if the remote execute fails or if the result of the remote execute is larger than
 maxSize."
-|tracker srcCstring gciResult result resultBuffer gsError|
 
-self assertLoggedIn .
-tracker := GsMemoryTracker new.
-srcCstring := self convertStringToExternalArgOrNull: sourceString  memoryTracker: tracker.
-resultBuffer := tracker add: (GsExternalByteString newWithNull: maxSize).
-gsError := tracker add: GciErrSType externalNew .
- 
-gciResult := self gciTsExecuteFetchBytes: session 
- 									sourceString: srcCstring getHandle 
-									 sourceStringSize: srcCstring sizeNoNull  
-									 sourceOop: self class OOP_CLASS_STRING 
-									 contextObject: self class oopNil
-									 symbolList: self class oopNil
-									 resultBuffer: resultBuffer getHandle
-									 resultBufferSize: resultBuffer size 
-									gsError: gsError .
-self checkGciResult: gciResult gsError: gsError tracker: tracker .
-self checkSpaceForBufferSize: maxSize resultSize: gciResult tracker: tracker .
-result := asByteArrayBoolean ifTrue:[ resultBuffer asByteArrayOfSize: gciResult ]
-									ifFalse:[ resultBuffer asByteString ].
-tracker freeAll.
-^ result
-									
+	| tracker srcCstring gciResult result resultBuffer gsError |
+	self assertLoggedIn.
+	tracker := GsMemoryTracker new.
+	srcCstring := self
+		              convertStringToExternalArgOrNull: sourceString
+		              memoryTracker: tracker.
+	resultBuffer := tracker add:
+		                (GsExternalByteString newWithNull: maxSize).
+	gsError := tracker add: GciErrSType externalNew.
 
+	gciResult := self
+		             gciTsExecuteFetchBytes: session
+		             sourceString: srcCstring getHandle
+		             sourceStringSize: srcCstring sizeNoNull
+		             sourceOop: self class OOP_CLASS_STRING
+		             contextObject: self class oopNil
+		             symbolList: self class oopNil
+		             resultBuffer: resultBuffer getHandle
+		             resultBufferSize: resultBuffer size
+		             gsError: gsError.
+	self checkGciResult: gciResult gsError: gsError tracker: tracker.
+	self
+		checkSpaceForBufferSize: maxSize
+		resultSize: gciResult
+		tracker: tracker.
+	result := asByteArrayBoolean
+		          ifTrue: [ resultBuffer asByteArrayOfSize: gciResult ]
+		          ifFalse: [ resultBuffer asByteStringOfSize: gciResult ].
+	tracker freeAll.
+	^ result
 ]
 
 { #category : 'remote execution' }
@@ -183,44 +189,44 @@ tracker freeAll.
 { #category : 'remote execution' }
 GciThreadSafeInterface >> fetchResultByteObject: oop maxResultSize: maxSize [
 
-|tracker objInfo result gciResult resultBuffer gsError isSymbol classOop|
+	| tracker objInfo result gciResult resultBuffer gsError isSymbol classOop |
+	self assertLoggedIn.
+	tracker := GsMemoryTracker new.
 
-self assertLoggedIn .
-tracker := GsMemoryTracker new.
+	resultBuffer := tracker add: (GsExternalByteString new: maxSize).
+	gsError := tracker add: GciErrSType externalNew.
+	objInfo := tracker add: GciTsObjInfo externalNew.
+	gciResult := self
+		             gciTsFetchObjInfo: session
+		             object: oop
+		             addToExportSet: 0
+		             resultInfo: objInfo
+		             resultBuffer: resultBuffer getHandle
+		             resultBufferSize: resultBuffer size
+		             gsError: gsError.
+	self checkGciResult: gciResult gsError: gsError tracker: tracker.
+	self
+		checkSpaceForBufferSize: maxSize
+		resultSize: gciResult
+		tracker: tracker.
 
-resultBuffer := tracker add: (GsExternalByteString newWithNull: maxSize).
-gsError := tracker add: GciErrSType externalNew .
-objInfo := tracker add: GciTsObjInfo externalNew .
-gciResult := self gciTsFetchObjInfo: session 
- 									 object: oop
-									 addToExportSet: 0
-									 resultInfo: objInfo
-									 resultBuffer: resultBuffer getHandle
-									 resultBufferSize: resultBuffer size 
-									gsError: gsError .
-self checkGciResult: gciResult gsError: gsError tracker: tracker .
-self checkSpaceForBufferSize: maxSize resultSize: gciResult tracker: tracker.
+	classOop := objInfo objClass.
+	classOop == self class OOP_CLASS_BYTE_ARRAY ifTrue: [ 
+		result := resultBuffer asByteArrayOfSize: gciResult.
+		tracker freeAll.
+		^ result ].
 
-classOop := objInfo objClass .
-classOop == self class OOP_CLASS_BYTE_ARRAY 
-	ifTrue:[ result := resultBuffer asByteArrayOfSize: gciResult .
-				tracker freeAll.
-				^ result 	].
-
-isSymbol := classOop == self class OOP_CLASS_SYMBOL .
-(isSymbol or:[classOop == self class OOP_CLASS_STRING])
-  ifFalse:[  | msg |
-				msg := 'Expected GemStone object to have class OOP_CLASS_STRING but it has class ', classOop asString .
-				tracker freeAll. 
-				^ Error signal: msg
-				].
-resultBuffer at: (gciResult + 1) put: Character null.
-result := resultBuffer asByteString .
-isSymbol ifTrue:[ result := result asSymbol ].
-tracker freeAll.
-^ result
-									
-
+	isSymbol := classOop == self class OOP_CLASS_SYMBOL.
+	(isSymbol or: [ classOop == self class OOP_CLASS_STRING ]) ifFalse: [ 
+		| msg |
+		msg := 'Expected GemStone object to have class OOP_CLASS_STRING but it has class '
+		       , classOop asString.
+		tracker freeAll.
+		^ Error signal: msg ].
+	result := resultBuffer asByteStringOfSize: gciResult.
+	isSymbol ifTrue: [ result := result asSymbol ].
+	tracker freeAll.
+	^ result
 ]
 
 { #category : 'ffi calls' }
