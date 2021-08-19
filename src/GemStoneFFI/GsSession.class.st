@@ -219,9 +219,9 @@ self class addSession: self.
 { #category : 'login' }
 GsSession >> logout [
 
-[(self class sessionIsValid: self) ifTrue:[ gciInterface logout ] ] ensure:[ self class removeSession: self ]
-
-
+	^ [ 
+	  (self class sessionIsValid: self) ifTrue: [ gciInterface logout ] ] 
+		  ensure: [ self class removeSession: self ]
 ]
 
 { #category : 'login' }
