@@ -319,7 +319,7 @@ GciThreadSafeInterface >> gciVersionString [
 
 |tracker result resultBuffer bufSize|
 
-bufSize := 80.
+bufSize := 128.
 tracker := GsMemoryTracker new.
 resultBuffer := tracker add: (GsExternalByteString newWithNull: bufSize).
  
