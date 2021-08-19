@@ -1,10 +1,10 @@
 Class {
-	#name : #GsExternalByteStringTest,
-	#superclass : #GemStoneFFITestCase,
-	#category : #'GemStoneFFI-Tests'
+	#name : 'GsExternalByteStringTest',
+	#superclass : 'GemStoneFFITestCase',
+	#category : 'GemStoneFFI-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 GsExternalByteStringTest >> testNewFromByteString [
  |  srcStr str |
 	srcStr := 'abc' .
@@ -17,7 +17,7 @@ GsExternalByteStringTest >> testNewFromByteString [
 	^self
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 GsExternalByteStringTest >> testNewWithNull [
 
  | sz str |

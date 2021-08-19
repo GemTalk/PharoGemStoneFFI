@@ -1,1 +1,1 @@
-Package { #name : #'GemStoneFFI-Tests' }
+Package { #name : 'GemStoneFFI-Tests' }

@@ -1,16 +1,16 @@
 Class {
-	#name : #GsSessionTest,
-	#superclass : #GemStoneFFITestCase,
-	#category : #'GemStoneFFI-Tests'
+	#name : 'GsSessionTest',
+	#superclass : 'GemStoneFFITestCase',
+	#category : 'GemStoneFFI-Tests'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 GsSessionTest class >> newSession [
 
 ^ GsSession newForGsVersion: self gsVersion threadSafe: true stone: self stone host: self host netldi: self netldi
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 GsSessionTest >> testGetNbCallStatus [
 |s r|
 s := self class newSession .
@@ -27,7 +27,7 @@ self assert: r.
 ^self
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 GsSessionTest >> testHelloWorld [
 |s r|
 s := self class newSession .
@@ -38,7 +38,7 @@ self assert: r equals: 'Hello, World!'.
 ^self
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 GsSessionTest >> testHelloWorldNb [
 |s r|
 s := self class newSession .
@@ -50,7 +50,7 @@ self assert: r equals: 'Hello, World!'.
 ^self
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 GsSessionTest >> testLogin [
 
 |sess|
@@ -63,7 +63,7 @@ self
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 GsSessionTest >> testLogoutWhenNotLoggedIn [
 |sess|
 sess := self class newSession .
@@ -72,7 +72,7 @@ self should:[sess logout] raise: Error .
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 GsSessionTest >> testVersion [
 
 |sess fullVerFromGci verFromGci verFromTestInit |

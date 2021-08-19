@@ -1,10 +1,10 @@
 Class {
-	#name : #GciInterfaceTest,
-	#superclass : #GemStoneFFITestCase,
-	#category : #'GemStoneFFI-Tests'
+	#name : 'GciInterfaceTest',
+	#superclass : 'GemStoneFFITestCase',
+	#category : 'GemStoneFFI-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 GciInterfaceTest >> testAsLocalObject [
 
 self 
