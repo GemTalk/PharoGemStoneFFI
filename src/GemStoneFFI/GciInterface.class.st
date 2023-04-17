@@ -213,7 +213,7 @@ GciInterface class >> oopIllegal [
 GciInterface class >> oopIsSmallInt: anOopType [
 
 "GciInterface oopIsSmallInt: 5330"
-^ self OOP_TAG_SMALLINT == (anOopType bitAnd: self OOP_TAG_SPECIAL_MASK)
+^  self OOP_TAG_SMALLINT == (anOopType bitAnd: self OOP_TAG_SPECIAL_MASK)
 
 ]
 
