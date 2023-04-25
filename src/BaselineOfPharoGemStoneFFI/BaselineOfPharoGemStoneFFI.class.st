@@ -1,11 +1,11 @@
 Class {
-	#name : 'BaselineOfSparkleFFI',
+	#name : 'BaselineOfPharoGemStoneFFI',
 	#superclass : 'BaselineOf',
-	#category : 'BaselineOfSparkleFFI'
+	#category : 'BaselineOfPharoGemStoneFFI'
 }
 
 { #category : 'baselines' }
-BaselineOfSparkleFFI >> baseline: spec [
+BaselineOfPharoGemStoneFFI >> baseline: spec [
 
 	<baseline>
 	spec for: #pharo do: [ 
