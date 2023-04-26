@@ -1,4 +1,4 @@
-# SparkleFFI
+# PharoGemStoneFFI
 GemStone GCI access via Pharo FFI
 
 ## Prerequisites
@@ -6,17 +6,17 @@ Installation instructions assume that you have registered SSH Keys with your Git
 
 You must have git installed: [git setup](https://help.github.com/articles/set-up-git/)
 
-You must have access to the GemStone client libraries for 3.6.1 or 3.7.0 for the client platform you're running on .
+You must have access to the GemStone client libraries for 3.6.x or 3.7.0 for the client platform you're running on .
 The build step [slow|fast]clientlibs generates a zip file containing these libraries in the correct directory structure.
 
 ## Installation
 
-If you are installing Sparkle, it will automatically install SparkleFFI, and there is no need to perform an manual install of SparkleFFI.  See [Sparkle on github](https://github.com/GemTalk/Sparkle); the Installation Guide is under Documentation.
+If you are installing Sparkle, it will automatically install PharoGemStoneFFI, and there is no need to perform an manual install of PharoGemStoneFFI.  See [Sparkle on github](https://github.com/GemTalk/Sparkle); the Installation Guide is under Documentation.
 
 ### Client Library Installation
-Choose a location for the client library files and copy the client library zip file to that location. ClientLibs for Alpha1 are available here:
-https://downloads.gemtalksystems.com/pub/GemStone64/3.7.0-Alpha1/GemStoneClientLibs3.7.0-x86.Windows_NT.zip
-https://downloads.gemtalksystems.com/pub/GemStone64/3.7.0-Alpha1/GemStoneClientLibs3.7.0-x86_64.Linux.zip
+Choose a location for the client library files and copy the client library zip file to that location. ClientLibs for Alpha5 are available here:
+https://downloads.gemtalksystems.com/pub/GemStone64/3.7.0-Alpha5/GemStoneClientLibs3.7.0-x86.Windows_NT.zip
+https://downloads.gemtalksystems.com/pub/GemStone64/3.7.0-Alpha5/GemStoneClientLibs3.7.0-x86_64.Linux.zip
 
 unzip the zip file into a directory named clientLibs. 
 
@@ -52,16 +52,16 @@ On Windows, this must be a path in Windows format, NOT cygwin format.
 
 Note: slow client libs will not function properly on Windows unless you have the debug versions of the vcruntime dlls that come with MS VisualStudio 2019. Therefore it is better to use fast builds on Windows.
 
-### Sparkle FFI Smaltalk code Installation
+### PharoGemStoneFFI Smaltalk code Installation
 If you don't already have one, choose a standard location on disk where you will locate your GitHub project clones.
-Clone the sparkleffi repository:
+Clone the PharoGemStoneFFI repository:
 
 ```
 cd <GitHub clones directory>
-git clone git@github.com:GemTalk/sparkleffi.git
+git clone git@github.com:GemTalk/PharoGemStoneFFI.git
 ```
 If you have already performed the clone, do a "git pull origin development" before running the install (if you will install the current developement branch).
-* Start a Pharo 9 image and open Iceberg.
+* Start a Pharo 9 or 10 image and open Iceberg.
 * In the Repositories window, click "+" and select "Import from existing clone".
 * Select the directory you cloned to above and add the repository.
 * Right click and select "Load" to load the code.
