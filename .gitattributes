@@ -1,3 +1,10 @@
 # inform linguist that files with these extensions are indeed smalltalk files
 *.st linguist-language=Smalltalk
 *.gs linguist-language=Smalltalk
+
+# All files are currently text, make sure line endings get normalized (issue 15)
+* text
+
+# If any binary files are added to this project, make sure to add patterns for them here
+# For example:
+# *.pdf -text
