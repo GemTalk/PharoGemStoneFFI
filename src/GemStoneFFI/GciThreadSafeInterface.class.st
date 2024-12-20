@@ -95,6 +95,34 @@ GciThreadSafeInterface >> checkSpaceForBufferSize: bufSize resultSize: resultSiz
 		  ' bytes)')] ensure:[ tracker freeAll ].
 ]
 
+{ #category : 'remote execution (nonblocking)' }
+GciThreadSafeInterface >> executeStringAndDetachNb: sourceString [
+
+"Starts remote execution of the string sourceString and tells the gem to stop servicing
+the client and ignore disconnects.
+Returns true if the execution was started and raises and exception on error.
+Requires GemStone v3.7.1 or later."
+
+|tracker srcCstring result gsError|
+
+self assertLoggedIn .
+tracker := GsMemoryTracker new.
+srcCstring := self convertStringToExternalArgOrNull: sourceString  memoryTracker: tracker.
+gsError := tracker add: GciErrSType externalNew .
+
+result := self gciTsNbExecute: session
+		 sourceString: srcCstring getHandle 
+		 sourceOop: self class OOP_CLASS_STRING  
+		 contextObject: self class oopNil
+		 symbolList: self class oopNil
+		 flags: self class GCI_PERFORM_DETACH
+		 envId: 0
+		 gsError: gsError.
+result ~~ 1 ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
+tracker freeAll.
+^ true
+]
+
 { #category : 'remote execution' }
 GciThreadSafeInterface >> executeStringAndFetchResultByteArray: sourceString maxResultSize: maxSize [
 
@@ -297,6 +325,14 @@ GciThreadSafeInterface >> gciTsNbExecute: sess sourceString: sourceString source
 ]
 
 { #category : 'ffi calls' }
+GciThreadSafeInterface >> gciTsNbLogout: sess gsError: gsError [
+"Low level FFI call to logout using the Gci thread-safe library.
+Does not wait for a response from the gem."
+			
+^ self ffiCall: #( BoolType GciTsNbLogout(void *sess, GciErrSType *gsError) ) library: self gsLibraryPath 
+]
+
+{ #category : 'ffi calls' }
 GciThreadSafeInterface >> gciTsNbPoll: sess timeoutMs: timeoutMs gsError: gsError [
 
 ^self ffiCall: #( int GciTsNbPoll(
@@ -410,6 +446,24 @@ GciThreadSafeInterface >> logout [
 
 "Logout the session. Raise an error if the session is not logged in or GsTsLogout returns an error. Return true on success."
 ^self logoutNoError: false
+
+]
+
+{ #category : 'Login' }
+GciThreadSafeInterface >> logoutNbNoError [
+
+"Logout the session and do not wait for a response from the gem."
+| tracker gsError |
+self isLoggedIn ifFalse:[
+	^ true 
+].
+
+tracker := GsMemoryTracker new.
+gsError := tracker add: GciErrSType externalNew .
+self gciTsNbLogout: session gsError: gsError .
+session := nil.
+tracker freeAll.
+^true
 
 ]
 

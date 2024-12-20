@@ -124,6 +124,26 @@ sess logout.
 
 ]
 
+{ #category : 'examples' }
+GsSession class >> example6 [
+"Log in to GemStone and fork a string to execute in the gem and detach the client from the gem.
+The gem will print a timestamp to the gem log each second for 30 seconds then logout.
+Requires 3.7.1 or later.
+
+
+GsSession example6
+"
+
+|sess result str |
+sess := GsSession newForGsVersion: '3.7.2' threadSafe: true stone: 'norm' host: 'moop' netldi: '10117'.
+sess loginWithGsUser: 'DataCurator' password: 'swordfish'.
+str := '30 timesRepeat:[ GsFile gciLogServer: DateTime now asString. System sleep: 1]. System logout'.
+result := sess executeStringAndDetachNb: str.
+sess logoutNbNoError. "Will not block"
+^result
+
+]
+
 { #category : 'class initialization' }
 GsSession class >> initialize [ 
 

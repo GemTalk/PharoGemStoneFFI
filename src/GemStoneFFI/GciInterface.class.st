@@ -18,6 +18,36 @@ Class {
 }
 
 { #category : 'constants' }
+GciInterface class >> GCI_PERFORM_DETACH [
+	^ 16r40
+]
+
+{ #category : 'constants' }
+GciInterface class >> GCI_PERFORM_FLAG_DISABLE_ASYNC_EVENTS [
+	^ 2
+]
+
+{ #category : 'constants' }
+GciInterface class >> GCI_PERFORM_FLAG_ENABLE_DEBUG [
+	^ 1
+]
+
+{ #category : 'constants' }
+GciInterface class >> GCI_PERFORM_FLAG_INTERPRETED [
+	^ 16r20
+]
+
+{ #category : 'constants' }
+GciInterface class >> GCI_PERFORM_FLAG_SINGLE_STEP [
+	^ 4
+]
+
+{ #category : 'constants' }
+GciInterface class >> GCI_PERFORM_noClientUseraction [
+	^ 16r10
+]
+
+{ #category : 'constants' }
 GciInterface class >> OOP_CLASS_BYTE_ARRAY [
 	^ 103425
 ]
