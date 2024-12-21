@@ -14,7 +14,8 @@ Class {
 	#pools : [
 		'GciTypes'
 	],
-	#category : 'GemStoneFFI'
+	#category : 'GemStoneFFI',
+	#package : 'GemStoneFFI'
 }
 
 { #category : 'constants' }

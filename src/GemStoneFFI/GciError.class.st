@@ -18,7 +18,8 @@ Class {
 		'message',
 		'reason'
 	],
-	#category : 'GemStoneFFI'
+	#category : 'GemStoneFFI',
+	#package : 'GemStoneFFI'
 }
 
 { #category : 'signalling' }
@@ -36,7 +37,7 @@ ex	fatal: aGciErrSType fatal ;
 { #category : 'signalling' }
 GciError class >> newForError: aGciErrSType tracker: aMemoryTracker [
 "Build an exception for an GemStone FFI call using the error in aGciErrSType .
-Then release the C heap memory before raising the excpetion."
+Then release the C heap memory before raising the exception."
 | result |
 result := self newForError: aGciErrSType .
 "aMemoryTracker freeAll." "Now that we're done with aGciErrSType, free meemory."

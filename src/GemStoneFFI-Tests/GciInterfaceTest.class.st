@@ -1,7 +1,8 @@
 Class {
 	#name : 'GciInterfaceTest',
 	#superclass : 'GemStoneFFITestCase',
-	#category : 'GemStoneFFI-Tests'
+	#category : 'GemStoneFFI-Tests',
+	#package : 'GemStoneFFI-Tests'
 }
 
 { #category : 'tests' }

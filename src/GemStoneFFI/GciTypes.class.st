@@ -10,7 +10,8 @@ Class {
 		'OopType',
 		'OopTypeArray10'
 	],
-	#category : 'GemStoneFFI'
+	#category : 'GemStoneFFI',
+	#package : 'GemStoneFFI'
 }
 
 { #category : 'class initialization' }

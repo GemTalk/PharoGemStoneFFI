@@ -6,7 +6,8 @@ The #freeAll message frees all memory in the receiver and empties the collection
 Class {
 	#name : 'GsMemoryTracker',
 	#superclass : 'OrderedCollection',
-	#category : 'GemStoneFFI'
+	#category : 'GemStoneFFI',
+	#package : 'GemStoneFFI'
 }
 
 { #category : 'releasing memory' }

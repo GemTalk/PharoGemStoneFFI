@@ -14,7 +14,8 @@ Class {
 		'stoneResource',
 		'gemResource'
 	],
-	#category : 'GemStoneFFI'
+	#category : 'GemStoneFFI',
+	#package : 'GemStoneFFI'
 }
 
 { #category : 'instance creation' }

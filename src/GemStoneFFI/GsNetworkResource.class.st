@@ -22,7 +22,8 @@ Class {
 		'dirPattern',
 		'logPattern'
 	],
-	#category : 'GemStoneFFI'
+	#category : 'GemStoneFFI',
+	#package : 'GemStoneFFI'
 }
 
 { #category : 'defaults' }

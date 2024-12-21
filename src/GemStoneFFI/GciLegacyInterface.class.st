@@ -5,7 +5,8 @@ Not yet implemented, contact Norm Green if you need it to work.
 Class {
 	#name : 'GciLegacyInterface',
 	#superclass : 'GciInterface',
-	#category : 'GemStoneFFI'
+	#category : 'GemStoneFFI',
+	#package : 'GemStoneFFI'
 }
 
 { #category : 'constants' }
