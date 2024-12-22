@@ -66,22 +66,24 @@ To check the nonblocking call status without blocking use the method: getNbCallS
 |tracker  result  gsError localResult |
 self assertLoggedIn .
 tracker := GsMemoryTracker new.
-gsError := tracker add: GciErrSType externalNew .
+gsError := GciErrSType externalNew .
+tracker add: gsError.
 result := self gciTsNbResult: session gsError: gsError.
 result == self class oopIllegal 
 	ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
 tracker freeAll. "No error, so done with this."
 gsError := nil. "Get freed C memory off the stack"
 result == self class oopNil ifTrue:[ ^ nil ].
-^(localResult := self class asLocalObject: result)
-	ifNil:[self fetchResultByteObject: result maxResultSize: maxSize] "Hope it's a String, Symbol or ByteArray"
-	ifNotNil:[ localResult ]. "Boolean or Integer take this path"
+localResult := self class asLocalObject: result.
+^ localResult == Object "Means we could not easily convert it to a Pharo immediate object"
+	ifTrue:[self doFetchResultByteObject: result maxResultSize: maxSize tracker: tracker]
+	ifFalse:[ localResult ]. "nil, Boolean or Integer take this path"
 ]
 
 { #category : 'error handling' }
 GciThreadSafeInterface >> checkGciResult: gciResult gsError: gsError tracker: tracker [
 
-gciResult == -1 ifFalse:[ ^ self ].
+gciResult >= 0 ifTrue:[ ^ self ].
 
 "Call failed, return an exception"
 ^ GciError newForError: gsError tracker: tracker
@@ -97,21 +99,17 @@ GciThreadSafeInterface >> checkSpaceForBufferSize: bufSize resultSize: resultSiz
 ]
 
 { #category : 'remote execution' }
-GciThreadSafeInterface >> executeString: sourceString [
+GciThreadSafeInterface >> doExecuteString: sourceString tracker: tracker [
 
-"Executes sourceString which is expected to return a byte object.
-The result must be a Boolean, SmallInteger, String or ByteArray not larger than 1024 bytes.
+"Executes sourceString which is expected to return a Boolean, SmallInteger, String, Symbol or ByteArray not larger than 1024 bytes.
 Raises an error if the remote execute fails or if the result of the remote execute is larger than 1024."
 
-	| tracker result  |
-	self assertLoggedIn.
-	tracker := GsMemoryTracker new.
-	[ | gciResult gsError srcCstring |
+	| result gciResult gsError srcCstring |
 	srcCstring := self
 		              convertStringToExternalArgOrNull: sourceString
 		              memoryTracker: tracker.
-	gsError := tracker add: GciErrSType externalNew.
-
+	gsError := GciErrSType externalNew.
+	tracker add: gsError.
 	gciResult := self
 		             gciTsExecute_: session
 		             sourceString: srcCstring getHandle
@@ -122,11 +120,66 @@ Raises an error if the remote execute fails or if the result of the remote execu
 		   		       flags: 0
 						 envId: 0
 		             gsError: gsError getHandle.
+	gciResult == self class oopIllegal 
+		ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
+	result := self class asLocalObject: gciResult.
+	^ result == Object
+		ifTrue:[ self doFetchResultByteObject: gciResult maxResultSize: 1024 tracker: tracker ]
+		ifFalse:[ result ]
+]
+
+{ #category : 'remote execution' }
+GciThreadSafeInterface >> doFetchResultByteObject: oop maxResultSize: maxSize tracker: tracker [
+
+	| objInfo result gciResult resultBuffer gsError isSymbol classOop |
+	self assertLoggedIn.
+	resultBuffer := GsExternalByteString new: maxSize .
+	tracker add: resultBuffer.
+	gsError := GciErrSType externalNew.
+	tracker add: gsError.
+	objInfo := GciTsObjInfo externalNew.
+	tracker add: objInfo.
+	gciResult := self
+		             gciTsFetchObjInfo: session
+		             object: oop
+		             addToExportSet: 0
+		             resultInfo: objInfo getHandle
+		             resultBuffer: resultBuffer getHandle
+		             resultBufferSize: resultBuffer size
+		             gsError: gsError getHandle.
 	self checkGciResult: gciResult gsError: gsError tracker: tracker.
-	result := (self class asLocalObject: gciResult) 
-		ifNil:[ self fetchResultByteObject: gciResult maxResultSize: 1024 ].
-	] ensure:[ tracker freeAll ].
+	self
+		checkSpaceForBufferSize: maxSize
+		resultSize: gciResult
+		tracker: tracker.
+
+	classOop := objInfo objClass.
+	classOop == self class OOP_CLASS_BYTE_ARRAY ifTrue: [ 
+		result := resultBuffer asByteArrayOfSize: gciResult.
+		^ result ].
+
+	isSymbol := classOop == self class OOP_CLASS_SYMBOL.
+	(isSymbol or: [ classOop == self class OOP_CLASS_STRING ]) ifFalse: [ 
+		| msg |
+		msg := 'Expected GemStone object to have class OOP_CLASS_STRING but it has class '
+		       , classOop asString.
+		^ Error signal: msg ].
+	result := resultBuffer asByteStringOfSize: gciResult.
+	isSymbol ifTrue: [ result := result asSymbol ].
 	^ result
+]
+
+{ #category : 'remote execution' }
+GciThreadSafeInterface >> executeString: sourceString [
+
+"Executes sourceString which is expected to return a Boolean, SmallInteger, String, Symbol or ByteArray not larger than 1024 bytes.
+Raises an error if the remote execute fails or if the result of the remote execute is larger than 1024."
+
+	| tracker |
+	self assertLoggedIn.
+	tracker := GsMemoryTracker new.
+	[ ^ self doExecuteString: sourceString tracker: tracker ] ensure:[ tracker freeAll ].
+	
 ]
 
 { #category : 'remote execution (nonblocking)' }
@@ -246,49 +299,6 @@ result := self gciTsNbExecute: session
 result ~~ 1 ifTrue:[ ^ GciError newForError: gsError tracker: tracker ].
 tracker freeAll.
 ^ true
-]
-
-{ #category : 'remote execution' }
-GciThreadSafeInterface >> fetchResultByteObject: oop maxResultSize: maxSize [
-
-	| tracker objInfo result gciResult resultBuffer gsError isSymbol classOop |
-	self assertLoggedIn.
-	tracker := GsMemoryTracker new.
-
-	resultBuffer := tracker add: (GsExternalByteString new: maxSize).
-	gsError := tracker add: GciErrSType externalNew.
-	objInfo := tracker add: GciTsObjInfo externalNew.
-	gciResult := self
-		             gciTsFetchObjInfo: session
-		             object: oop
-		             addToExportSet: 0
-		             resultInfo: objInfo getHandle
-		             resultBuffer: resultBuffer getHandle
-		             resultBufferSize: resultBuffer size
-		             gsError: gsError getHandle.
-	self checkGciResult: gciResult gsError: gsError tracker: tracker.
-	self
-		checkSpaceForBufferSize: maxSize
-		resultSize: gciResult
-		tracker: tracker.
-
-	classOop := objInfo objClass.
-	classOop == self class OOP_CLASS_BYTE_ARRAY ifTrue: [ 
-		result := resultBuffer asByteArrayOfSize: gciResult.
-		tracker freeAll.
-		^ result ].
-
-	isSymbol := classOop == self class OOP_CLASS_SYMBOL.
-	(isSymbol or: [ classOop == self class OOP_CLASS_STRING ]) ifFalse: [ 
-		| msg |
-		msg := 'Expected GemStone object to have class OOP_CLASS_STRING but it has class '
-		       , classOop asString.
-		tracker freeAll.
-		^ Error signal: msg ].
-	result := resultBuffer asByteStringOfSize: gciResult.
-	isSymbol ifTrue: [ result := result asSymbol ].
-	tracker freeAll.
-	^ result
 ]
 
 { #category : 'ffi calls' }

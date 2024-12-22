@@ -338,25 +338,45 @@ GsSession >> gciInterface: anObject [
 { #category : 'accessing - gem' }
 GsSession >> gemLogFileName [
 
+"Answer a ByteString representing the log file name of the gem. Receiver must be logged in."
 ^ self executeStringAndFetchResultString: 'System gemLogFileName'
+]
+
+{ #category : 'accessing - gem' }
+GsSession >> gemLogFileNameContents [
+
+"Answer a ByteString representing the contents of the gem log file. Receiver must be logged in."
+
+| str sz |
+"Find out how big it is."
+sz := self executeString: 'GsFile sizeOfOnServer: System gemLogFileName'.
+"Allow for some growth"
+sz := sz + 512.
+"Fetch the file contents"
+str := '|gsf r | gsf := GsFile openReadOnServer: System gemLogFileName. r := gsf contents. gsf close. ^r'.
+^ self executeStringAndFetchResultString: str maxResultSize: sz.
+
 ]
 
 { #category : 'accessing - gem' }
 GsSession >> gemProcessId [
 
-^ self executeStringAndFetchResultString: 'System gemProcessId asString'
+"Answer a SmallInteger which is the process ID of the gem process. Receiver must be logged in."
+^ self executeString: 'System gemProcessId'
 ]
 
 { #category : 'accessing - gem' }
 GsSession >> gemSessionId [
 
-^ self executeStringAndFetchResultString: 'System session asString'
+"Answer a SmallInteger which is the session ID of the gem. Receiver must be logged in."
+^ self executeString: 'System session'
 ]
 
 { #category : 'accessing - gem' }
 GsSession >> keepGemLog [
 
-^ self executeStringAndFetchResultString: 'System removeGemLogOnExit: false. String new'
+"Prevents the gem from removing the gem log upon exit. Receiver must be logged in."
+^ self executeString: 'System removeGemLogOnExit: false. true'
 ]
 
 { #category : 'login' }

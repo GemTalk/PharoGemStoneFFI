@@ -108,9 +108,10 @@ Note: Caller must check for oopNil!"
 
 anOopType == self oopTrue ifTrue:[ ^ true ].
 anOopType == self oopFalse ifTrue:[ ^ false ].
+anOopType == self oopNil ifTrue:[ ^ nil ].
 (self oopIsSmallInt: anOopType) ifTrue:[ ^ self oopToSmallInt: anOopType ].
 "We could add code to check for other specials here like SmallDate, SmallTime, etc"
-^nil "Easy cases exhausted. Caller needs to call GciTsFetchObjInfo to find out what is it."
+^Object "Easy cases exhausted. Caller needs to call GciTsFetchObjInfo to find out what is it."
 ]
 
 { #category : 'library path' }
