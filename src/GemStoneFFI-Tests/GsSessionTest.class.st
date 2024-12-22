@@ -186,6 +186,42 @@ self
 ]
 
 { #category : 'tests' }
+GsSessionTest >> testLoginWithSpaces [
+
+"Test issue 5: login with leading and trailing spaces"
+
+| stn hst nldi sess |
+stn := '  ', self class stone, '  '.
+host := 
+hst := '  ', self class host, '  '.
+nldi := ' ', self class netldi, ' '.
+
+sess := GsSession 
+	newForGsVersion: self class gsVersion 
+	threadSafe: true 
+	stone: stn
+	host: hst
+	netldi: nldi.
+[ self
+	assert: sess class identicalTo: GsSession ;
+	assert: (sess loginWithGsUser: 'DataCurator' password: 'swordfish') 
+] ensure:[ sess ifNotNil:[ sess logoutNbNoError ] ].
+	
+^ self
+
+]
+
+{ #category : 'tests' }
+GsSessionTest >> testLogoutError [
+"test issue 12"
+|sess|
+sess := self class newSession .
+self should:[ sess logout ] raise: Error.
+^self
+
+]
+
+{ #category : 'tests' }
 GsSessionTest >> testLogoutWhenNotLoggedIn [
 |sess|
 sess := self class newSession .

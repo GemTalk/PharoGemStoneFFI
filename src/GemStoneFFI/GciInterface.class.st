@@ -160,7 +160,7 @@ GciInterface class >> convertStringToExternalArgOrNull: byteString memoryTracker
 Converts empty strings or nils to NULL in C.
 For non-empy strings, add the result to tracker so the caller can free the memory when appropriate."
 ^(byteString isNotNil and:[ byteString isNotEmpty ] ) 
-	ifTrue:[tracker add: (GsExternalByteString newFromByteString: byteString) ]
+	ifTrue:[tracker add: (GsExternalByteString newFromByteString: byteString trimBoth) ]
 	ifFalse:[ FFIExternalObject null]
 ]
 

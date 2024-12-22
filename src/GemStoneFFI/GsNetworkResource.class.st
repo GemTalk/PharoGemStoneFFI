@@ -72,11 +72,11 @@ GsNetworkResource class >> newWithName: aName host: aHost netldi: aNetldi [
 GsNetworkResource class >> newWithName: aName host: aHost netldi: aNetldi dirPattern: aDirPattern logPattern: aLogPattern [
 "Creates a new instance"
 ^ self new 
-	name: aName ;
-	host: aHost ;
-	netldi: aNetldi ;
-	dirPattern: aDirPattern ;
-	logPattern: aLogPattern ;
+	name: aName  ;
+	host: aHost  ;
+	netldi: aNetldi  ;
+	dirPattern: aDirPattern  ;
+	logPattern: aLogPattern  ;
 	yourself 
 				
 ]
@@ -104,7 +104,7 @@ GsNetworkResource >> dirPattern [
 
 { #category : 'accessing' }
 GsNetworkResource >> dirPattern: anObject [
-	dirPattern := anObject
+	dirPattern := self trimBoth: anObject
 ]
 
 { #category : 'accessing' }
@@ -114,7 +114,7 @@ GsNetworkResource >> host [
 
 { #category : 'accessing' }
 GsNetworkResource >> host: anObject [
-	host := anObject
+	host := self trimBoth: anObject
 ]
 
 { #category : 'accessing' }
@@ -124,7 +124,7 @@ GsNetworkResource >> logPattern [
 
 { #category : 'accessing' }
 GsNetworkResource >> logPattern: anObject [
-	logPattern := anObject
+	logPattern := self trimBoth: anObject
 ]
 
 { #category : 'accessing' }
@@ -134,7 +134,7 @@ GsNetworkResource >> name [
 
 { #category : 'accessing' }
 GsNetworkResource >> name: anObject [
-	name := anObject
+	name := self trimBoth: anObject
 ]
 
 { #category : 'accessing' }
@@ -144,5 +144,12 @@ GsNetworkResource >> netldi [
 
 { #category : 'accessing' }
 GsNetworkResource >> netldi: anObject [
-	netldi := anObject asString
+	netldi := self trimBoth: anObject asString
+]
+
+{ #category : 'trimming' }
+GsNetworkResource >> trimBoth: anObj [
+
+"Fix issue #5"
+^ anObj ifNil:[ nil ] ifNotNil:[ anObj trimBoth ]
 ]
