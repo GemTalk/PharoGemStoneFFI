@@ -4,7 +4,8 @@ A class used to represent a C null-terminated ASCII string. instances are alloca
 Class {
 	#name : 'GsExternalByteString',
 	#superclass : 'FFIExternalArray',
-	#category : 'GemStoneFFI'
+	#category : 'GemStoneFFI',
+	#package : 'GemStoneFFI'
 }
 
 { #category : 'instance creation' }

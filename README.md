@@ -2,11 +2,17 @@
 GemStone GCI access via Pharo FFI
 
 ## Prerequisites
+
+### Version 1.1
+**GemStone version ==3.7.1== or later is now required!**
+
+Tested on Pharo 9, 10, 11 on Windows and Linux. Other Pharo versions/platforms will probably work but might not.
+
 Installation instructions assume that you have registered SSH Keys with your GitHub account. See [Connecting to GitHub with SSH](https://help.github.com/articles/connecting-to-github-with-ssh/) for more information.
 
 You must have git installed: [git setup](https://help.github.com/articles/set-up-git/)
 
-You must have access to the GemStone client libraries for 3.6.x or 3.7.0 for the client platform you're running on .
+You must have access to the GemStone client libraries for 3.7.1 or later for the client platform you're running on .
 The build step [slow|fast]clientlibs generates a zip file containing these libraries in the correct directory structure.
 
 ## Installation
@@ -14,9 +20,9 @@ The build step [slow|fast]clientlibs generates a zip file containing these libra
 If you are installing Sparkle, it will automatically install PharoGemStoneFFI, and there is no need to perform an manual install of PharoGemStoneFFI.  See [Sparkle on github](https://github.com/GemTalk/Sparkle); the Installation Guide is under Documentation.
 
 ### Client Library Installation
-Choose a location for the client library files and copy the client library zip file to that location. ClientLibs for Alpha5 are available here:
-https://downloads.gemtalksystems.com/pub/GemStone64/3.7.0-Alpha5/GemStoneClientLibs3.7.0-x86.Windows_NT.zip
-https://downloads.gemtalksystems.com/pub/GemStone64/3.7.0-Alpha5/GemStoneClientLibs3.7.0-x86_64.Linux.zip
+Choose a location for the client library files and copy the client library zip file to that location. ClientLibs are available here:
+https://downloads.gemtalksystems.com/pub/GemStone64/3.7.1/GemStoneClientLibs3.7.1-x86.Windows_NT.zip
+https://downloads.gemtalksystems.com/pub/GemStone64/3.7.1/GemStoneClientLibs3.7.1-x86_64.Linux.zip
 
 unzip the zip file into a directory named clientLibs. 
 
@@ -24,27 +30,27 @@ The examples below show installing on Windows under cygwin, but the process is s
 ```
 $ mkdir clientlibs
 $ cd clientlibs
-$ cp installdir/GemStoneClientLibs3.7.0-x86.Windows_NT.zip .
-$ unzip GemStoneClientLibs3.7.0-x86.Windows_NT.zip
-Archive:  GemStoneClientLibs3.7.0-x86.Windows_NT.zip
-   creating: 3.7.0/
-   creating: 3.7.0/32bit/
-  inflating: 3.7.0/32bit/libgcirpc-3.7.0-32.dll
-  inflating: 3.7.0/32bit/libgcirpc-3.7.0-32.pdb
-  inflating: 3.7.0/32bit/libgcits-3.7.0-32.dll
-  inflating: 3.7.0/32bit/libgcits-3.7.0-32.pdb
-  inflating: 3.7.0/32bit/libssl-3.7.0-32.dll
-  inflating: 3.7.0/32bit/libssl-3.7.0-32.pdb
-  inflating: 3.7.0/32bit/vcruntime140d.dll
-   creating: 3.7.0/64bit/
-  inflating: 3.7.0/64bit/libgcirpc-3.7.0-64.dll
-  inflating: 3.7.0/64bit/libgcirpc-3.7.0-64.pdb
-  inflating: 3.7.0/64bit/libgcits-3.7.0-64.dll
-  inflating: 3.7.0/64bit/libgcits-3.7.0-64.pdb
-  inflating: 3.7.0/64bit/libssl-3.7.0-64.dll
-  inflating: 3.7.0/64bit/libssl-3.7.0-64.pdb
-  inflating: 3.7.0/64bit/vcruntime140d.dll
-  inflating: 3.7.0/64bit/vcruntime140_1d.dll
+$ cp installdir/GemStoneClientLibs3.7.1-x86.Windows_NT.zip .
+$ unzip GemStoneClientLibs3.7.1-x86.Windows_NT.zip
+Archive:  GemStoneClientLibs3.7.1-x86.Windows_NT.zip
+   creating: 3.7.1/
+   creating: 3.7.1/32bit/
+  inflating: 3.7.1/32bit/libgcirpc-3.7.1-32.dll
+  inflating: 3.7.1/32bit/libgcirpc-3.7.1-32.pdb
+  inflating: 3.7.1/32bit/libgcits-3.7.1-32.dll
+  inflating: 3.7.1/32bit/libgcits-3.7.1-32.pdb
+  inflating: 3.7.1/32bit/libssl-3.7.1-32.dll
+  inflating: 3.7.1/32bit/libssl-3.7.1-32.pdb
+  inflating: 3.7.1/32bit/vcruntime140d.dll
+   creating: 3.7.1/64bit/
+  inflating: 3.7.1/64bit/libgcirpc-3.7.1-64.dll
+  inflating: 3.7.1/64bit/libgcirpc-3.7.1-64.pdb
+  inflating: 3.7.1/64bit/libgcits-3.7.1-64.dll
+  inflating: 3.7.1/64bit/libgcits-3.7.1-64.pdb
+  inflating: 3.7.1/64bit/libssl-3.7.1-64.dll
+  inflating: 3.7.1/64bit/libssl-3.7.1-64.pdb
+  inflating: 3.7.1/64bit/vcruntime140d.dll
+  inflating: 3.7.1/64bit/vcruntime140_1d.dll
 
 ```
 The installdir/clientLibs directory is your client libs directory. Remember this location, you will need it later. 
@@ -61,7 +67,7 @@ cd <GitHub clones directory>
 git clone git@github.com:GemTalk/PharoGemStoneFFI.git
 ```
 If you have already performed the clone, do a "git pull origin development" before running the install (if you will install the current developement branch).
-* Start a Pharo 9 or 10 image and open Iceberg.
+* Start a Pharo 11 or 12 image and open Iceberg.
 * In the Repositories window, click "+" and select "Import from existing clone".
 * Select the directory you cloned to above and add the repository.
 * Right click and select "Load" to load the code.

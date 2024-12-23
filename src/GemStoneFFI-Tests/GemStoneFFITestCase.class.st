@@ -7,7 +7,8 @@ Class {
 		'netldi',
 		'stone'
 	],
-	#category : 'GemStoneFFI-Tests'
+	#category : 'GemStoneFFI-Tests',
+	#package : 'GemStoneFFI-Tests'
 }
 
 { #category : 'acccessing' }
@@ -29,6 +30,12 @@ GemStoneFFITestCase class >> host [
 { #category : 'acccessing' }
 GemStoneFFITestCase class >> host: hostOrIp [
 host := hostOrIp 
+]
+
+{ #category : 'testing' }
+GemStoneFFITestCase class >> isAbstract [ 
+^ self name = GemStoneFFITestCase
+
 ]
 
 { #category : 'acccessing' }
